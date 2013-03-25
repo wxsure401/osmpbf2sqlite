@@ -29,8 +29,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	// open specified file
-	const wchar_t* ch=argv[0];
-	FILE *fp = _wfopen(argv[1] , L"rb");
+	FILE *fp = _tfopen(argv[1] , _T("rb"));
 	if(  fp==NULL)
 	{
 		err("_wfopen failed!\n");
@@ -40,7 +39,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	sw.Start();
 	CSqLite3MemAloc ma;
 	ma.Init();
-
 
 	CDB m_db;
 	m_db.m_pSource=argv[1];

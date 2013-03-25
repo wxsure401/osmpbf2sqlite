@@ -37,7 +37,7 @@ public:
 	CtabKeyValue m_tkvWay;
 	CtabKeyValue m_tkvRelation;
 
-	const wchar_t* m_pSource;
+	const _TCHAR* m_pSource;
 	std::wstring GetFileNameOut()const;
 	void  CreateTables();
 	void  PrepareTables();
