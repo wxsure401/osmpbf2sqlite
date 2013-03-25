@@ -4,16 +4,20 @@
 //
 
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS
+
+#define _CRT_SECURE_NO_WARNINGS 1
 //#define _HAS_ITERATOR_DEBUGGING 0
 #include "targetver.h"
 
 #include <stdio.h>
-#include <tchar.h>
+
 #include <assert.h>
 
-#include <atlbase.h>
-#include <atlstr.h>
+#ifdef WIN32
+ #include <tchar.h>
+ #include <atlbase.h>
+ #include <atlstr.h>
+#endif
 
 /*#include <string>
 
@@ -30,9 +34,15 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #include <set>
 #include <algorithm>
 
-#define ZLIB_CONST
-#include "../Alien/zlib127/include/zlib.h"
+#define ZLIB_CONST 1
+//#include "../Alien/zlib127/include/zlib.h"
+//#include "../Alien/sqlite3/sqlite3.h"
+#include <zlib.h>
 #include "../Alien/sqlite3/sqlite3.h"
+
+#ifndef WIN32
+#include <netinet/in.h>
+#endif
 
 #ifdef _DEBUG
 #define ASSERT(a) assert(a)

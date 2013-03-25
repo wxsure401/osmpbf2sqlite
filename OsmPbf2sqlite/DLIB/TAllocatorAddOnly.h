@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\SqLite3MemAloc.h"
+#include "../SqLite3MemAloc.h"
 
 class CMemoryAddOnly 
 {

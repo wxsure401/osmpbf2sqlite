@@ -50,7 +50,7 @@ public:
 
 	// nFrom < 0 то берем с конца -1 это последний символ. 
 	// nСount =0 берм все -1 берём кроме последнего
-	TSlicedArray Slice(int nFrom,int nСount);
+	TSlicedArray Slice(int nFrom,int nCount);
 
 	void Atttach(const std::vector<_Ty> &ar);
 	std::vector<_Ty> Detach();

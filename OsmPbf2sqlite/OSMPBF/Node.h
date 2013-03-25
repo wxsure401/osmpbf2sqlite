@@ -1,6 +1,6 @@
 #pragma once
 #include "Info.h"
-#include "..\dlib\TAllocatorAddOnly.h"
+#include "../DLIB/TAllocatorAddOnly.h"
 
 namespace OSMPBF {
 

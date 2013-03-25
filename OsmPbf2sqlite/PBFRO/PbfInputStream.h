@@ -1,6 +1,6 @@
 #pragma once
 
-#include "..\DLIB\TSlicedArray.h"
+#include "../DLIB/TSlicedArray.h"
 
 namespace PBFRO {
 

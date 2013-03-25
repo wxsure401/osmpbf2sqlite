@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "../StdAfx.h"
 #include "MyString.h"
 
 CMyString::CMyString(void)

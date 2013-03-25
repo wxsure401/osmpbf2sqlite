@@ -1,5 +1,5 @@
 #pragma once
-#include "tfuint.h"
+#include "TFuint.h"
 
 namespace PBFRO {
 

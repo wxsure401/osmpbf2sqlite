@@ -1,5 +1,5 @@
 #pragma once
-#include "..\PBFRO\pbfro.h"
+#include "../PBFRO/Pbfro.h"
 
 namespace OSMPBF {
 

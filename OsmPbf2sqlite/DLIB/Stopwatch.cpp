@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "../StdAfx.h"
 #include "Stopwatch.h"
 double CStopwatch::m_dFreq=0;
 

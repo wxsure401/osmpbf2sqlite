@@ -1,8 +1,8 @@
 #pragma once
-#include "pbfro/PbfFBytes.h"
+#include "PBFRO/PbfFBytes.h"
 #include "DLIB/SQLite3Table.h"
-#include "osmpbf/info.h"
-#include "osmpbf/stringtable.h"
+#include "OSMPBF/Info.h"
+#include "OSMPBF/StringTable.h"
 class CtabKeyValue
 {
 public:

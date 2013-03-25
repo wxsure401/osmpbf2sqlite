@@ -1,6 +1,6 @@
 #pragma once
-#include "..\PBFRO\pbfro.h"
-#include "..\DLIB\TAllocatorAddOnly.h"
+#include "../PBFRO/Pbfro.h"
+#include "../DLIB/TAllocatorAddOnly.h"
 
 namespace OSMPBF {
 

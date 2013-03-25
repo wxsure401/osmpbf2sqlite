@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "OSMPBF/osmpbf.h"
-#include "DLIB/stopwatch.h"
+#include "DLIB/Stopwatch.h"
 #include "DLIB/ThreadManager.h"
 #include "ThreadLoader.h"
 #include "SqLite3MemAloc.h"

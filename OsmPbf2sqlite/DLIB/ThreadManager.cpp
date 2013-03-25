@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "../StdAfx.h"
 #include "ThreadManager.h"
 
 CThreadManager::CThreadManager(unsigned nThread)

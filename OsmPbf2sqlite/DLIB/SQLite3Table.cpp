@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "SQLite3Table.h"
 #include "MyString.h"
 
