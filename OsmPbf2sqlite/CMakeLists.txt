@@ -1,10 +1,6 @@
 # cotire OsmPbf2sqlite project
 
-add_executable(OsmPbf2sqlite OsmPbf2sqlite.cpp 
-CdbDictionary.cpp
-ConsoleOutput.cpp
-CtabKeyValue.cpp
-DB.cpp
+add_executable(OsmPbf2sqlite OsmPbf2sqlite.cpp CdbDictionary.cpp ConsoleOutput.cpp CtabKeyValue.cpp DB.cpp
 SqLite3MemAloc.cpp
 stdafx.cpp
 ThreadLoader.cpp
@@ -83,7 +79,7 @@ if (TARGET ${_unityTargetName})
 	message(STATUS "OsmPbf2sqlite unity target: ${_unityTargetName}")
 endif()
 
- target_link_libraries (OsmPbf2sqlite  sqlite3.lib zlib.lib)
+ target_link_libraries (OsmPbf2sqlite  sqlite3 zlib)
 
  if (MSVC)
 	target_link_libraries (OsmPbf2sqlite  Ws2_32.lib )

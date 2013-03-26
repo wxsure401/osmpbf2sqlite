@@ -35,13 +35,14 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #include <algorithm>
 
 #define ZLIB_CONST 1
-//#include "../Alien/zlib127/include/zlib.h"
-//#include "../Alien/sqlite3/sqlite3.h"
-#include <zlib.h>
 #include "../Alien/sqlite3/sqlite3.h"
 
-#ifndef WIN32
-#include <netinet/in.h>
+#ifdef WIN32
+	#include "../Alien/zlib127/include/zlib.h"
+
+#else
+	#include <zlib.h>
+	#include <netinet/in.h>
 #endif
 
 #ifdef _DEBUG
