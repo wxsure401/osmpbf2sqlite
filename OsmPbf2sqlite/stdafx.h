@@ -43,12 +43,14 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #else
 	#include <zlib.h>
 	#include <netinet/in.h>
+	typedef int _int32
+	typedef int __int32
 #endif
 
 #ifdef _DEBUG
 #define ASSERT(a) assert(a)
 #else
-#define ASSERT(a) 
+#define ASSERT(a)
 
 #endif //
 

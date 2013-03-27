@@ -29,13 +29,13 @@ public:
 
 
 	//Установка задачи pThread в очередь задач
-	//Задача имеет идентификатор группы gidMy и должна запускаться когда 
+	//Задача имеет идентификатор группы gidMy и должна запускаться когда
 	// завершаться nCount задач из группы  gidAfter
-	TaskId BeginTaskG(CThreadUnit* pThread,GrupId gidMy,GrupId gidAfter,int nCount,int nCountCoin=1); 
+	TaskId BeginTaskG(CThreadUnit* pThread,GrupId gidMy,GrupId gidAfter,int nCount,int nCountCoin=1);
 
 	//Установка задачи pThread в очередь задач
 	//Задача имеет идентификатор группы gidMy и должна запускаться после задачи pThreadAfter
-	TaskId BeginTaskT(CThreadUnit* pThread,GrupId gidMy,CThreadUnit* pThreadAfter,int nCountCoin=1); 
+	TaskId BeginTaskT(CThreadUnit* pThread,GrupId gidMy,CThreadUnit* pThreadAfter,int nCountCoin=1);
 
 	struct STasksGrup
 	{
@@ -53,9 +53,9 @@ public:
 
 
 	//Установка задачи pThread в очередь задач
-	//Задача имеет идентификатор группы gidMy и должна запускаться когда 
+	//Задача имеет идентификатор группы gidMy и должна запускаться когда
 	// завершаться все задачи описанные в массиве pTasks. Массив содержит nCountTassks групп
-	TaskId BeginTaskComplex(CThreadUnit* pThread,GrupId gidMy,const STasksGrup* pTasks,int nCountTassks,int nCountCoin=1); 
+	TaskId BeginTaskComplex(CThreadUnit* pThread,GrupId gidMy,const STasksGrup* pTasks,int nCountTassks,int nCountCoin=1);
 
 
 
@@ -66,7 +66,7 @@ public:
 		etiWaitPrev,     //ожидает выполнения предыдущих задач
 		etiWaitThread,    //ожидает свободного потока
 		etiWork,     //выполняется
-		etiReadyUnкnown,  //Задача выполненна и её никто не ждёт
+		etiReadyUnknown,  //Задача выполненна и её никто не ждёт
 		etiReady,  //Задача выполненна и установлена в очередь для последующей отработки
 	};
 
@@ -84,7 +84,7 @@ public:
 
 	void SetThreadPriority(int nPriority);
 
-	static int GetCountKernels(); // сколько в системя ядер  
+	static int GetCountKernels(); // сколько в системя ядер
 
 	size_t GetCountThread()const
 		{return m_arHandle.size();} // сколько потоков обрабатывают задачи в рамках этого объекьа
@@ -168,7 +168,7 @@ private:
 
 /*
 inline bool CThreadManager::STask::operator<(const CThreadManager::STask::STask& t)const
-{	return m_taskId<t.m_taskId;	
+{	return m_taskId<t.m_taskId;
 }
 */
 inline CThreadManager::STask &CThreadManager::GetTask(CThreadManager::TaskId tid)

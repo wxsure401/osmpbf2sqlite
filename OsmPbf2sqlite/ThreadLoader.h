@@ -1,5 +1,5 @@
 #pragma once
-#include "dlib\threadmanager.h"
+#include "DLIB/ThreadManager.h"
 #include "DB.h"
 #include "OSMPBF/osmpbf.h"
 
