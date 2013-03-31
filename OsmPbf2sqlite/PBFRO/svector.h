@@ -24,10 +24,10 @@ public:
 
 	size_t size()const;
 	size_t capacity()const;
-	
+
 	void reserve(size_t count);
 	void resize(size_t count, const T& t = T());
-	void push_back(const T& t);	
+	void push_back(const T& t);
 
 	T& operator[](size_t ind);
 	const T& operator[](size_t ind)const;
@@ -74,7 +74,7 @@ inline size_t svector< T,_Ax>::capacity()const
 	return  m_pLast-m_pBegin;
 
 }
-	
+
 
 
 template <class T, class _Ax >
@@ -158,7 +158,7 @@ inline void svector< T,_Ax>::push_back(const T& t)
 		size_t sz=size();
 		if( capacity() <= sz)
 		{
-			reserve(max(32,sz*2));
+			reserve(std::max(size_t(32),sz*2));
 		}
 	}
 	_Alval.construct(m_pEnd++,t);
@@ -168,4 +168,4 @@ inline void svector< T,_Ax>::push_back(const T& t)
 }
 
 
-} //namespace PBFRO 
+} //namespace PBFRO

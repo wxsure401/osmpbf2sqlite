@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "CtabKeyValue.h"
 
 CtabKeyValue::CtabKeyValue(void)
@@ -54,12 +54,12 @@ void CtabKeyValue::Init(CSQLite3DB* pdb,const char*sName)
 		err(pdb->errmsg());
 
 
-	sprintf(s,"INSERT INTO Key%s (id,Name) VALUES (?,?);",sName,sName);
+	sprintf(s,"INSERT INTO Key%s (id,Name) VALUES (?,?);",sName);
 	ret=m_Key.m_tab.prepare(s,-1);
 	if(ret!=SQLITE_OK)
 		err(pdb->errmsg());
 
-	sprintf(s,"INSERT INTO Value%s (id,Text) VALUES (?,?);",sName,sName);
+	sprintf(s,"INSERT INTO Value%s (id,Text) VALUES (?,?);",sName);
 	ret=m_Val.m_tab.prepare(s,-1);
 	if(ret!=SQLITE_OK)
 		err(pdb->errmsg());
@@ -74,7 +74,7 @@ void CtabKeyValue::Add(__int64 id,const PBFRO::FBytes* sKey, const PBFRO::FBytes
 	m_tabKeyVal.bind_int(2,m_Key.GetIdText(sKey));
 	m_tabKeyVal.bind_int(3,m_Val.GetIdText(sValue));
 	m_tabKeyVal.step();
-	
+
 }
 
 unsigned  CtabKeyValue::SDic::GetIdText(const PBFRO::FBytes* sKey)

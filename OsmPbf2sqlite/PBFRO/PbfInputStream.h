@@ -1,4 +1,7 @@
 #pragma once
+#include <memory.h>
+#include <math.h>
+#include <stdlib.h>
 
 #include "../DLIB/TSlicedArray.h"
 
@@ -19,11 +22,11 @@ public:
 	bool ReadVariant(T &value)
 	{
 		T result = 0;
-		int count = 0;
+		unsigned count = 0;
 		unsigned char b;
 
 		do {
-			if (count > (sizeof(T)*8)/7 || empty()) 
+			if (count > (sizeof(T)*8)/7 || empty())
 				return false;
 			b = *m_pBegin;
 			result |= ((T)( b & 0x7F ))<< (7 * count) ;
@@ -43,7 +46,7 @@ public:
 			return false;
 		value=*(T*)m_pBegin;
 		Advance(sizeof(T));
-	
+
 		return true;
 	}
 
@@ -83,7 +86,7 @@ public:
 	typedef const char* Limit;
 	Limit PushLimit(size_t  len)
 	{
-		len=min(size(),len);
+		len=std::min(size(),len);
 		Limit old=m_pEnd;
 		m_pEnd=m_pBegin+len;
 		return old;
@@ -93,9 +96,9 @@ public:
 		m_pEnd=li;
 	}
 
-	bool InternalReadStringInline(CBuffer *buf,  size_t sz) 
+	bool InternalReadStringInline(CBuffer *buf,  size_t sz)
 	{
-		if (sz > size()) 
+		if (sz > size())
 			return false;  // security: size is often user-supplied
 
 		*buf=*this;
@@ -120,7 +123,7 @@ private:
 
     void Advance(unsigned u=1)
 	{
-		
+
 		ASSERT(m_pBegin+u<=m_pEnd); //чтобы было nothrow
 		m_pBegin+=u;
 	}
@@ -133,4 +136,4 @@ inline Tag CInputStream::ReadTag()
 	return last_tag_;
 }
 
-}//namespace PBFRO 
+}//namespace PBFRO

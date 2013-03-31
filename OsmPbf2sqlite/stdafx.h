@@ -19,6 +19,8 @@
  #include <atlstr.h>
 #endif
 
+#include <boost/thread/thread.hpp>
+#include <boost/filesystem.hpp>
 /*#include <string>
 
 
@@ -43,8 +45,30 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #else
 	#include <zlib.h>
 	#include <netinet/in.h>
-	typedef int _int32
-	typedef int __int32
+	#include <stddef.h>
+    #define __int8 char
+	#define _int32 int
+	#define __int32 int
+	#define __int64 long long int
+	#define _THROW0()	throw ()
+	#define _TCHAR char
+	#define _T(a) a
+	#define LONG long
+	#define _tfopen fopen
+    #define CComAutoCriticalSection boost::mutex
+    #define DWORD unsigned
+    #define HANDLE unsigned
+    #define UINT unsigned
+    #define LPVOID void*
+    #define WM_USER 100
+    #define WINAPI
+    #define CComCritSecLock  boost::lock_guard
+    #define MAX_PATH 512
+    #define _tcsrchr strrchr
+    #define DeleteFileW(a)
+
+	//typedef int _int32
+	//typedef int __int32
 #endif
 
 #ifdef _DEBUG

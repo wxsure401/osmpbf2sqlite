@@ -9,7 +9,7 @@ namespace PBFRO {
 
 
 template <class T, class _Ax = std::allocator<T> >
-class TFar : public CField, 
+class TFar : public CField,
 	public svector<T, _Ax>
 {
 public:
@@ -31,7 +31,7 @@ public:
 	{
 		Clear();
 	}
-	
+
 
 	/// Читаем из потока
 	virtual bool Read(CInputStream *pis)
@@ -41,7 +41,7 @@ public:
 			f.Init(pis);
 			push_back(f);
 		}
-		return (*this)[size()-1].Read(pis);
+		return (*this)[this->size()-1].Read(pis);
 	}
 
 	virtual EWireType GetWireType()const
@@ -49,12 +49,12 @@ public:
 
 	_Ax* Get_Alval()
 	{
-		return &_Alval;
+		return &this->_Alval;
 	}
 };
 
 template <class T,class _Ax = std::allocator<T> >
-class TFarPak : public TFar<T,_Ax> 
+class TFarPak : public TFar<T,_Ax>
 {
 public:
 
@@ -65,20 +65,20 @@ public:
 	virtual bool Read(CInputStream *pis)
 	{
 		unsigned length;
-		if (!pis->ReadVariant(length)) 
+		if (!pis->ReadVariant(length))
 			return false;
 		CInputStream::Limit L=pis->PushLimit(length);
 		while(!pis->ExpectAtEnd())
-			if(!TFar::Read(pis))
+			if(!TFar<T,_Ax>::Read(pis))
 				break;
 		pis->PopLimit(L);
 		return true;
 	}
-	
+
 };
 
-template <class T,class _Ax = std::allocator<T>>
-class TFarPak2 : public TFar<T, _Ax> 
+template <class T,class _Ax = std::allocator<T> >
+class TFarPak2 : public TFar<T, _Ax>
 {
 public:
 
@@ -89,17 +89,17 @@ public:
 	virtual bool Read(CInputStream *pis)
 	{
 		unsigned length;
-		if (!pis->ReadVariant(length)) 
+		if (!pis->ReadVariant(length))
 			return false;
-		reserve(length/sizeof(T));
+		this->reserve(length/sizeof(T));
 		CInputStream::Limit L=pis->PushLimit(length);
 		while(!pis->ExpectAtEnd())
-			if(!TFar::Read(pis))
+			if(!TFar<T, _Ax>::Read(pis))
 				break;
 		pis->PopLimit(L);
 		return true;
 	}
-	
+
 };
 
-}//namespace PBFRO 
+}//namespace PBFRO

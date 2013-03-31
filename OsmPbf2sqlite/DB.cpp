@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "DB.h"
 
 CDB::CDB(void)
@@ -10,7 +10,7 @@ CDB::~CDB(void)
 }
 void CDB::Init()
 {
-	::DeleteFileW(GetFileNameOut().c_str());	 
+	::DeleteFileW(GetFileNameOut().c_str());
 	 int hr=m_db.Open(  GetFileNameOut().c_str(),  /*SQLITE_OPEN_FULLMUTEX|*/SQLITE_OPEN_NOMUTEX|SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE  );
 	 if(hr!=SQLITE_OK)
 		err(m_db.errmsg());
@@ -24,7 +24,7 @@ void CDB::Init()
 }
 void CDB::Close()
 {
-	
+
 	 m_dicUser.Save();
 	 m_tkvNode.SaveText();
 	 m_tkvWay.SaveText();
@@ -66,7 +66,7 @@ std::wstring CDB::GetFileNameOut()const
 {
 	std::wstring sOut;
 	sOut.assign(m_pSource,_tcsrchr(  m_pSource,_T('.')));
-	
+
 
 	return sOut+L".db3";
 }

@@ -112,7 +112,7 @@ private:
 	typedef std::set<STask> CTasks;
 	CTasks m_arTask;
 
-	STask &GetTask(TaskId tid);
+	const STask &GetTask(TaskId tid);
 	CTasks::iterator GetTaskIterator(TaskId tid);
 
 
@@ -171,8 +171,8 @@ inline bool CThreadManager::STask::operator<(const CThreadManager::STask::STask&
 {	return m_taskId<t.m_taskId;
 }
 */
-inline CThreadManager::STask &CThreadManager::GetTask(CThreadManager::TaskId tid)
+inline const CThreadManager::STask &CThreadManager::GetTask(CThreadManager::TaskId tid)
 {
 
-	return *GetTaskIterator(tid);
+	return (*GetTaskIterator(tid));
 }

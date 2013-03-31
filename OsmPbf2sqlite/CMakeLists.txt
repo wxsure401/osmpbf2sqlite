@@ -1,6 +1,9 @@
 # cotire OsmPbf2sqlite project
+set (PROJECT OsmPbf2sqlite)
 
-add_executable(OsmPbf2sqlite OsmPbf2sqlite.cpp CdbDictionary.cpp ConsoleOutput.cpp CtabKeyValue.cpp DB.cpp
+set(BOOST_ROOT /home/di/e/boost_1_53_0)
+
+add_executable(${PROJECT} OsmPbf2sqlite.cpp CdbDictionary.cpp ConsoleOutput.cpp CtabKeyValue.cpp DB.cpp
 SqLite3MemAloc.cpp
 stdafx.cpp
 ThreadLoader.cpp
@@ -54,34 +57,51 @@ PBFRO/TFsint.h
 PBFRO/TFuint.h
 )
 
+#для boost
+set (BOOST_COMPONENTS 
+	thread
+	filesystem)
+ 
+set (Boost_USE_STATIC_LIBS ON)
+ 
+set (Boost_USE_MULTITHREADED ON)
+ 
+find_package (Threads)
+ 
+find_package (Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+target_link_libraries (${PROJECT} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+
+
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-	set_target_properties(OsmPbf2sqlite PROPERTIES COMPILE_FLAGS "-Wall")
+	set_target_properties(${PROJECT} PROPERTIES COMPILE_FLAGS "-Wall")
 endif()
 
-cotire(OsmPbf2sqlite)
+cotire(${PROJECT})
 
 # cotire sets the following properties
-get_target_property(_unitySource OsmPbf2sqlite COTIRE_CXX_UNITY_SOURCE)
-get_target_property(_prefixHeader OsmPbf2sqlite COTIRE_CXX_PREFIX_HEADER)
-get_target_property(_precompiledHeader OsmPbf2sqlite COTIRE_CXX_PRECOMPILED_HEADER)
-get_target_property(_unityTargetName OsmPbf2sqlite COTIRE_UNITY_TARGET_NAME)
+get_target_property(_unitySource ${PROJECT} COTIRE_CXX_UNITY_SOURCE)
+get_target_property(_prefixHeader ${PROJECT} COTIRE_CXX_PREFIX_HEADER)
+get_target_property(_precompiledHeader ${PROJECT} COTIRE_CXX_PRECOMPILED_HEADER)
+get_target_property(_unityTargetName ${PROJECT} COTIRE_UNITY_TARGET_NAME)
 
 if (_unitySource)
-	message(STATUS "OsmPbf2sqlite unity source: ${_unitySource}")
+	message(STATUS "${PROJECT} unity source: ${_unitySource}")
 endif()
 if (_prefixHeader)
-	message(STATUS "OsmPbf2sqlite prefix header: ${_prefixHeader}")
+	message(STATUS "${PROJECT} prefix header: ${_prefixHeader}")
 endif()
 if (_precompiledHeader)
-	message(STATUS "OsmPbf2sqlite precompiled header: ${_precompiledHeader}")
+	message(STATUS "${PROJECT} precompiled header: ${_precompiledHeader}")
 endif()
 if (TARGET ${_unityTargetName})
-	message(STATUS "OsmPbf2sqlite unity target: ${_unityTargetName}")
+	message(STATUS "${PROJECT} unity target: ${_unityTargetName}")
 endif()
 
- target_link_libraries (OsmPbf2sqlite  sqlite3 zlib)
+ target_link_libraries (${PROJECT}  sqlite3 zlib)
 
- if (MSVC)
-	target_link_libraries (OsmPbf2sqlite  Ws2_32.lib )
+if (MSVC)
+	target_link_libraries (${PROJECT}  Ws2_32.lib )
 	add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
 endif()

@@ -16,7 +16,7 @@ public:
 		Tu u;
 		if(!pis->ReadVariant(u))
 			return false;
-		m_val=ZigZagDecode(u);
+		this->m_val=ZigZagDecode(u);
 		return true;
 	}
 
@@ -25,14 +25,14 @@ public:
 		override bool Read(CodedInputStream input)
 	{
 		Buint temp;
-		if (!input.ReadVarint(temp)) 
+		if (!input.ReadVarint(temp))
 			return false;
 		Val=ZigZagDecode(temp);
 		return true;
 	}
 
 	override bool Write (CodedOutputStream output)const
-	{ 
+	{
 		if(!output.WriteVarint( WireFormatLite.MakeTag(field_number_, wireType_)))
 			return false;
 		Buint v=ZigZagEncode(val_);
@@ -55,4 +55,4 @@ typedef TFsint<__int32,unsigned __int32>  Fsint32;
 typedef TFsint<__int64,unsigned __int64>  Fsint64;
 
 
-}//namespace PBFRO 
+}//namespace PBFRO

@@ -2,7 +2,7 @@
 
 #include "../SqLite3MemAloc.h"
 
-class CMemoryAddOnly 
+class CMemoryAddOnly
 {
 public:
 
@@ -10,11 +10,12 @@ public:
 
 	int m_test;
 	CMemoryAddOnly(size_t nCountReserve=g_nCountDef)
-		:m_pBegin(NULL)
+		:m_test(778)
+		,m_pBegin(NULL)
 		,m_pEnd(NULL)
 		,m_pLast(NULL)
 		,m_pNext(NULL)
-		,m_test(778)
+
 
 	{
 		if(nCountReserve==0)
@@ -89,7 +90,7 @@ public:
 
 	 }
 
-private: 
+private:
 	__int8* m_pBegin;
 	__int8* m_pEnd;
 	__int8* m_pLast;
@@ -110,14 +111,14 @@ class TAllocatorAddOnly
 {	// generic allocator for objects of class _Ty
 public:
 	//typedef _Allocator_base<_Ty> _Mybase;
-	typedef typename _Ty value_type;
-	typedef value_type _FARQ *pointer;
-	typedef value_type _FARQ& reference;
-	typedef const value_type _FARQ *const_pointer;
-	typedef const value_type _FARQ& const_reference;
+	typedef _Ty value_type;
+	typedef value_type *pointer;
+	typedef value_type & reference;
+	typedef const value_type  *const_pointer;
+	typedef const value_type & const_reference;
 
-	typedef _SIZT size_type;
-	typedef _PDFT difference_type;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
 
 	template<class _Other>
 		struct rebind
@@ -170,7 +171,7 @@ public:
 			return (pointer)m_pMemory->New(_Count*sizeof(_Ty));
 		}
 
-	pointer allocate(size_type _Count, const void _FARQ *)
+	pointer allocate(size_type _Count, const void *)
 		{	// allocate array of _Count elements, ignore hint
 			return (allocate(_Count));
 
@@ -188,9 +189,9 @@ public:
 			//return ;
 		}
 
-	_SIZT max_size() const _THROW0()
+	size_t max_size() const _THROW0()
 		{	// estimate maximum array size
-		_SIZT _Count = (_SIZT)(-1) / sizeof (_Ty);
+		size_t _Count = (size_t)(-1) / sizeof (_Ty);
 		return (0 < _Count ? _Count : 1);
 		}
 

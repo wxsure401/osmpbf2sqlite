@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "CdbDictionary.h"
 
 CtabUser::CtabUser(void)
@@ -36,7 +36,7 @@ int CtabUser::GetID(int id,const char* sText, size_t sz)
 	}
 	*/
 	return id;
-	
+
 }
 void CtabUser::Init(CSQLite3DB* db)
 {
