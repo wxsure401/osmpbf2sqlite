@@ -20,6 +20,8 @@ public:
 	static int Init(void* p);           /* Initialize the memory allocator */
 	static void Shutdown(void*p);      /* Deinitialize the memory allocator */
 
+
+
 	//кусочек
 	struct SShunk
 	{
@@ -42,8 +44,8 @@ public:
 		SHip * m_pNext; //Позиция следующего в этой куче
 		__int8*  m_pBuf; //непосредственно буфер памяти
 
-		void* Malloc(int n);      
-		void Free(void* p);   
+		void* Malloc(int n);
+		void Free(void* p);
 	private:
 		void swap();
 	};
@@ -53,17 +55,16 @@ public:
 		SHips();
 		~SHips();
 
-		SHip* m_hip[13]; // массив выделенных блоков памяти m_hip[0] -> это по 64 байта,m_hip[1]- 128 байт и тд 
+		SHip* m_hip[13]; // массив выделенных блоков памяти m_hip[0] -> это по 64 байта,m_hip[1]- 128 байт и тд
 
-		void* Malloc(int n);      
-		void Free(void* p);        
-		void* Realloc(void* p,int n); 
-		size_t Size(void* p);      
+		void* Malloc(int n);
+		void Free(void* p);
+		void* Realloc(void* p,int n);
+		size_t Size(void* p);
 
 		SHip* GetHip(int n);
 	};
 
 
-	static int m_nIndTls;
-
+    static __TLS  SHips* m_pH;
 };

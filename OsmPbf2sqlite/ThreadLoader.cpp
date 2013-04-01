@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "DLIB/SQLite3Table.h"
 #include "DLIB/Stopwatch.h"
 
@@ -9,7 +9,7 @@ volatile LONG CThreadLoader::m_nCount=0;
 CThreadLoader::CThreadLoader(void)
 
 {
-	
+
 }
 
 CThreadLoader::~CThreadLoader(void)
@@ -29,17 +29,17 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 uTime=GetTickCount()+1000;
 
 	 }
-	 
-	 
+
+
 	m_pprimblock=new OSMPBF::PrimitiveBlock;
-	
+
 	 std::vector<char> buffer_blob_header;
 	 std::vector<char>  buffer(OSMPBF::max_uncompressed_blob_size);
 	 std::vector<unsigned char> unpack_buffer(OSMPBF::max_uncompressed_blob_size);
 
 	 const char* pbWork;
 
-	 for(;;) 
+	 for(;;)
 	 {
 		 // storage of size, used multiple times
 		 __int32 sz;
@@ -87,7 +87,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 //Отсюда можно работать паралельно
 
 		 }
-		// ++m_nCount; continue; 		 
+		// ++m_nCount; continue;
 
 
 		 // parse the blob from the read-buffer
@@ -117,7 +117,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 }
 
 		 // if the blob has zlib-compressed data
-		 if(!blob.m_zlib_data.empty()) 
+		 if(!blob.m_zlib_data.empty())
 		 {
 			 // issue a warning if there is more than one data steam, a blob may only contain one data stream
 			 if(found_data)
@@ -133,7 +133,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 z_stream z;
 
 			 // next byte to decompress
-			 z.next_in   = (const  Bytef *) blob.m_zlib_data.m_pBegin;
+			 z.next_in   = (z_const Bytef *) blob.m_zlib_data.m_pBegin;
 
 			 // number of bytes to decompress
 			 z.avail_in  = sz;
@@ -141,7 +141,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 // place of next decompressed byte
 			  z.next_out  =  &unpack_buffer[0];
 			  pbWork= (const char*) &unpack_buffer[0];
-			 
+
 
 			 // space for decompressed data
 			 z.avail_out = blob.m_raw_size.m_val;
@@ -186,17 +186,17 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 // switch between different blob-types
 		 if(blobheader.m_type.compareString("OSMHeader")==0)
 		 {
-	
+
 			 OSMPBF::Headerblock headerblock ;
 			 // parse the HeaderBlock from the blob
 			 if(!headerblock.ParseFromArray(pbWork, sz))
 				 err("unable to parse header block");
 
 			 // tell about the bbox
-		 /*	
+		 /*
 		 if(headerblock.m_bbox.IsInitialized()) {
 				 OSMPBF::HeaderBBox bbox = headerblock.m_bbox;
-		
+
 				 debug("    bbox: %.7f,%.7f,%.7f,%.7f",
 					 (double)bbox.m_left.m_val / OSMPBF::lonlat_resolution,
 					 (double)bbox.m_bottom.m_val / OSMPBF::lonlat_resolution,
@@ -223,10 +223,10 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 }
 		 else if(blobheader.m_type.compareString("OSMData")==0)
 		 {
-		
+
 			 m_pprimblock->Clear();
 
-			 
+
 
 			 // parse the PrimitiveBlock from the blob
 			 if(!m_pprimblock->ParseFromArray(pbWork, sz))
@@ -247,7 +247,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 debug("    primitivegroups: %u groups", primblock.m_primitivegroup.size());
 */
 			 // iterate over all PrimitiveGroups
-			 for(int i = 0, l = m_pprimblock->m_primitivegroup.size(); i < l; i++) 
+			 for(int i = 0, l = m_pprimblock->m_primitivegroup.size(); i < l; i++)
 			 {
 				 // one PrimitiveGroup from the the Block
 				 OSMPBF::PrimitiveGroup& pg = m_pprimblock->m_primitivegroup[i];
@@ -255,7 +255,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 				 bool found_items=false;
 
 				 // tell about nodes
-				 if(pg.m_nodes.size() > 0) 
+				 if(pg.m_nodes.size() > 0)
 				 {
 					//CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
 					 found_items = true;
@@ -301,7 +301,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 
 					for(size_t i=0;i<pg.m_relations.size();++i)
 						AddRelations(pg.m_relations[i]);
-					
+
 					 /*
 					 debug("      relations: %d", pg.m_relations.size());
 					 if(pg.m_relations[0].IsInitialized())
@@ -321,7 +321,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 }
 
 		 //////////////////////////////////////////////////////////////////////////
-		 LONG l =InterlockedIncrement(&m_nCount);
+		 LONG l =INTERLOCKED_INCREMENT(&m_nCount);
 		 if(m_nThredNumber==0)
 		 {
 			 unsigned u=GetTickCount();
@@ -401,9 +401,9 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 		pTabNI->bind_int(3,nUser);
 		pTabNI->bind_int64(4,n.m_info.m_changeset.m_val);
 		ret = pTabNI->step();
-	
+
 	}
-	
+
 	//m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
 	if(ret!= SQLITE_DONE)
 		err(m_pDB->m_db.errmsg());
@@ -453,10 +453,10 @@ void CThreadLoader::AddDense(const OSMPBF::DenseNodes& d)
 			node.m_info.m_visible=d.m_denseinfo.m_visible[i];
 		else
 			node.m_info.m_visible.m_val=true;
-		
+
 		if (lastkv<d.m_keys_vals.size())
 		{
-			
+
 			while(d.m_keys_vals[lastkv].m_val)
 			{
 				PBFRO::Fuint32 u;
@@ -467,9 +467,9 @@ void CThreadLoader::AddDense(const OSMPBF::DenseNodes& d)
 			}
 			++lastkv;
 		}
-	
-	
-	
+
+
+
 		AddNode(node);
 /*
 		if(i==100)
@@ -478,7 +478,7 @@ void CThreadLoader::AddDense(const OSMPBF::DenseNodes& d)
 			int a=0;
 			a++;
 		}
-*/		
+*/
 	}
 }
 void CThreadLoader::AddWay(const OSMPBF::Way& w)
@@ -572,7 +572,7 @@ void CThreadLoader::AddRelations(const OSMPBF::Relation& r)
 		pTabR=&m_pDB->m_tabRelation_NotVisible;
 		pTabRI=&m_pDB->m_tabRelationInfo_NotVisible;
 	}
-   
+
 	CtabKeyValue::SarInts arInts;
 	m_pDB->m_tkvNode.Prepare(m_pprimblock->m_stringtable,
 		r.m_keys,r.m_vals,&arInts);

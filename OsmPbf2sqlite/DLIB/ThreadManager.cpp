@@ -1,4 +1,4 @@
-#include "../StdAfx.h"
+#include "../stdafx.h"
 #include "ThreadManager.h"
 
 CThreadManager::CThreadManager(unsigned nThread)
@@ -11,7 +11,7 @@ CThreadManager::CThreadManager(unsigned nThread)
 	m_arHandle.resize(nThread);
 	for(unsigned i=0; i<nThread; ++i)
 	{
-		
+
 		m_arHandle[i]=::CreateThread(NULL,0,Thread,this,0,&m_arThreads[i].m_ThreadId );
 		while(!::PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT,0,0))
 			Sleep(0);
@@ -24,7 +24,7 @@ CThreadManager::~CThreadManager(void)
 {
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
 		::PostThreadMessage(m_arThreads[i].m_ThreadId, WM_QUIT,0,0);
-	
+
 	DWORD dw=::WaitForMultipleObjects(m_arHandle.size(),&m_arHandle[0],TRUE,INFINITE);
 	assert(dw!=WAIT_TIMEOUT);
 
@@ -63,7 +63,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskT(CThreadUnit* pThread,GrupId gi
 
 
 CThreadManager::TaskId CThreadManager::BeginTaskComplex(
-	CThreadUnit* pThread,GrupId gidMy,const STasksGrup* pTasks,int nCountTassks,int nCountCoin) 
+	CThreadUnit* pThread,GrupId gidMy,const STasksGrup* pTasks,int nCountTassks,int nCountCoin)
 {
 
 	STask ta;
@@ -80,7 +80,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 				nW+=pTasks[i].m_nCount;
 			else
 				++nW;
-			
+
 		}
 
 		ta.m_etiState=  nW  ? etiWaitPrev : etiWaitThread;
@@ -93,7 +93,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 	CComCritSecLock<CComAutoCriticalSection> l(m_cs);
 	m_arTask.insert(ta);
 	STask &t=GetTask(ta.m_taskId);
-	
+
 	if(t.m_etiState==etiWaitPrev)
 	{ //ищем все предшествующие задачи
 		int nPosOut=0;
@@ -108,7 +108,8 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 					 //Ищем готовую групп
 					for(CTasks::iterator ti=m_arTask.begin();ti!=m_arTask.end();++ti)
 					{
-						if(ti->m_etiState==etiReadyUnкnown && ti->m_Grup==tg.m_gidAfter)
+						//if(ti->m_etiState==etiReadyUnкnown && ti->m_Grup==tg.m_gidAfter)
+						if(ti->m_etiState == etiReadyUnknown  &&  ti->m_Grup==tg.m_gidAfter)
 						{
 
 							if(std::find(&t.m_arTasks[0],&t.m_arTasks[nPosOut],ti->m_taskId)!=&t.m_arTasks[nPosOut])  //убираем зацикливание
@@ -130,7 +131,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 			else
 			{
 				STask &to=GetTask(tg.m_pThreadAfter);
-				if(to.m_etiState==etiReadyUnкnown)
+				if(to.m_etiState==etiReadyUnknown)
 				{
 					t.m_arTasks[nPosOut]=to.m_taskId;
 					if(--to.m_nCountCoin == 0)
@@ -148,7 +149,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 			t.m_etiState=etiWaitThread;
 
 	}
-	
+
 
 
 	if(t.m_etiState==etiWaitThread)
@@ -157,10 +158,10 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 	return pThread;
 }
 
-//static 
+//static
 
 //static
-int CThreadManager::GetCountKernels() // сколько в системя ядер  
+int CThreadManager::GetCountKernels() // сколько в системя ядер
 {
 	SYSTEM_INFO sysinfo;
 	::GetSystemInfo(&sysinfo);
@@ -236,7 +237,7 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 
 					CComCritSecLock<CComAutoCriticalSection> l(ptm->m_cs);
 					STask &t=ptm->GetTask(*pMyTask);
-					t.m_etiState=etiReadyUnкnown;
+					t.m_etiState=etiReadyUnknown;
 					//Добавляем себя в ожидающие задачи
 					//идём по всем задачам
 					for(CTasks::iterator ti=ptm->m_arTask.begin();ti!=ptm->m_arTask.end();++ti)
@@ -278,7 +279,7 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 										}
 
 									}
-									
+
 								}
 								else
 								{
@@ -359,8 +360,8 @@ void CThreadManager::Wait(GrupId giW,int nCount)
 				nCount+=ti->m_nCountCoin;
 
 	}
-	
-	BeginTaskG(&w,0,giW,nCount,0); 
+
+	BeginTaskG(&w,0,giW,nCount,0);
 
 
 

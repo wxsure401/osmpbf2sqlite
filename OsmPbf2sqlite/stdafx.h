@@ -20,7 +20,9 @@
 #endif
 
 #include <boost/thread/thread.hpp>
+#include <boost/thread/xtime.hpp>
 #include <boost/filesystem.hpp>
+
 /*#include <string>
 
 
@@ -41,7 +43,8 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 
 #ifdef WIN32
 	#include "../Alien/zlib127/include/zlib.h"
-
+    #define __TLS __declspec(thread)
+    #define INTERLOCKED_INCREMENT(a) InterlockedIncrement(a)
 #else
 	#include <zlib.h>
 	#include <netinet/in.h>
@@ -66,7 +69,40 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     #define MAX_PATH 512
     #define _tcsrchr strrchr
     #define DeleteFileW(a)
+    #define __TLS __thread
 
+    inline void ZeroMemory(void* pBuf,size_t sz)
+    {
+        memset(pBuf,sz,0);
+    }
+    inline unsigned GetTickCount()
+    {
+        boost::xtime xt;
+        boost::xtime_get(&xt, boost::TIME_UTC_);
+        return xt.nsec*10000000; // ms
+    }
+
+    #ifndef z_const
+        #define z_const
+    #endif
+
+    inline long int INTERLOCKED_INCREMENT(volatile long int *pa)
+    {
+        assert(false);
+        return *pa+1;
+
+    }
+
+    /*
+    template <class A>
+    inline size_t _countof (const A a[])
+    {
+        return sizeof(a)/sizeof(A);
+    }
+    */
+    #define _countof(a) (sizeof(a)/sizeof(a[0]))
+    #define CP_ACP 0
+    #define LPCSTR const char*
 	//typedef int _int32
 	//typedef int __int32
 #endif

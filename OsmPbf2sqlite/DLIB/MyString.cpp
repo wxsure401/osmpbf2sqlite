@@ -1,4 +1,4 @@
-#include "../StdAfx.h"
+#include "../stdafx.h"
 #include "MyString.h"
 
 CMyString::CMyString(void)
@@ -8,16 +8,18 @@ CMyString::CMyString(void)
 CMyString::~CMyString(void)
 {
 }
+
+#ifdef WIN32
 /*static*/void CMyString::W2C(const wchar_t* ws, unsigned size_ws, std::string* str, unsigned uCodePage/*=CP_ACP*/)
 {
 	if(ws==NULL || str==NULL)
 		return;
 
-	if(size_ws==-1)
+	if(size_ws==unsigned(-1))
 		size_ws=wcslen(ws);
 
 	LPCSTR pszDefChar="?";
-	BOOL bUseDef=true, *pbUseDef=&bUseDef;
+	bool bUseDef=true, *pbUseDef=&bUseDef;
 
 	switch(uCodePage)
 	{
@@ -50,9 +52,10 @@ CMyString::~CMyString(void)
 /* static */ void CMyString::C2UTF8(const char* str, unsigned size_str, std::string* psUtf8)
 {
 	std::wstring ws;
-	CMyString::C2W(str, size_str, &ws);	
-	CMyString::W2C(ws, psUtf8, CP_UTF8);	
+	CMyString::C2W(str, size_str, &ws);
+	CMyString::W2C(ws, psUtf8, CP_UTF8);
 }
+#endif //WIN32
 
 //получим флоат из цифры
 float  wcstod2(const wchar_t * s,  const wchar_t ** _EndPtr)

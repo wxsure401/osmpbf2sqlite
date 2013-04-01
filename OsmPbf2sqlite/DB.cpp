@@ -10,7 +10,8 @@ CDB::~CDB(void)
 }
 void CDB::Init()
 {
-	::DeleteFileW(GetFileNameOut().c_str());
+    boost::filesystem::remove(GetFileNameOut().c_str());
+	//::DeleteFileW(GetFileNameOut().c_str());
 	 int hr=m_db.Open(  GetFileNameOut().c_str(),  /*SQLITE_OPEN_FULLMUTEX|*/SQLITE_OPEN_NOMUTEX|SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE  );
 	 if(hr!=SQLITE_OK)
 		err(m_db.errmsg());

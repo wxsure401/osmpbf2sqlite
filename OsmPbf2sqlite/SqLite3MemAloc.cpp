@@ -1,15 +1,15 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "SqLite3MemAloc.h"
 
 sqlite3_mem_methods CSqLite3MemAloc::m_OldMem;
 sqlite3_mem_methods CSqLite3MemAloc::m_Mem;
 
-int CSqLite3MemAloc::m_nIndTls=0;
+__TLS  CSqLite3MemAloc::SHips* CSqLite3MemAloc::m_pH=NULL;
 
 CSqLite3MemAloc::CSqLite3MemAloc(void)
 {
-	ASSERT(m_nIndTls==0);
-	m_nIndTls=TlsAlloc();
+	//ASSERT(m_nIndTls==0);
+	//m_nIndTls=TlsAlloc();
 }
 
 CSqLite3MemAloc::~CSqLite3MemAloc(void)
@@ -40,49 +40,38 @@ void CSqLite3MemAloc::Close()
 
 void* CSqLite3MemAloc::Malloc(int n)         /* Memory allocation function */
 {
-	SHips* pH=(SHips*)::TlsGetValue(m_nIndTls);
-	if(pH==0)
+	if(m_pH==NULL)
 	{
-		pH=new SHips;
-		::TlsSetValue(m_nIndTls,pH);
-		
+		m_pH=new SHips;
 	}
 
-	return pH->Malloc(n);
+	return m_pH->Malloc(n);
 
-	//return m_OldMem.xMalloc(n);
+
 }
 void CSqLite3MemAloc::Free(void* p)          /* Free a prior allocation */
 {
-	SHips* pH=(SHips*)::TlsGetValue(m_nIndTls);
-	if(pH)
-		pH->Free(p);
+	if(m_pH)
+		m_pH->Free(p);
 
 }
 void* CSqLite3MemAloc::Realloc(void* p,int n)  /* Resize an allocation */
 {
-	SHips* pH=(SHips*)::TlsGetValue(m_nIndTls);
-	return pH->Realloc(p,n);
-
-	//return m_OldMem.xRealloc(p,n);
+	return m_pH->Realloc(p,n);
 }
 
 int CSqLite3MemAloc::Size(void* p)           /* Return the size of an allocation */
 {
-	SHips* pH=(SHips*)::TlsGetValue(m_nIndTls);
-	return pH->Size(p);
-//	return m_OldMem.xSize(p);
+	return m_pH->Size(p);
 }
 
 int CSqLite3MemAloc::Roundup(int n)          /* Round up request size to allocation size */
 {
-	//return m_OldMem.xRoundup(n);
 	return (((n)+7)&~7);
 }
 
 int CSqLite3MemAloc::Init(void* p)           /* Initialize the memory allocator */
 {
-	//return m_OldMem.xInit(p);
 	return SQLITE_OK;
 }
 void CSqLite3MemAloc::Shutdown(void*p)      /* Deinitialize the memory allocator */
@@ -99,10 +88,10 @@ CSqLite3MemAloc::SHips::SHips()
 }
 CSqLite3MemAloc::SHips::~SHips()
 {
-	for(int i=0;i<_countof(m_hip);++i)
+	for(unsigned i=0;i<_countof(m_hip);++i)
 		delete m_hip[i];
 }
-//	SHip* m_hip[9]; // массив выделенных блоков памяти m_hip[0] -> это по 64 байта,m_hip[1]- 128 байт и тд 
+//	SHip* m_hip[9]; // массив выделенных блоков памяти m_hip[0] -> это по 64 байта,m_hip[1]- 128 байт и тд
 
 void* CSqLite3MemAloc::SHips::Malloc(int n)
 {
@@ -115,7 +104,7 @@ void CSqLite3MemAloc::SHips::Free(void* p)
 void* CSqLite3MemAloc::SHips::Realloc(void* p,int n)
 {
 	size_t szOld=Size(p);
-	if(szOld==n)
+	if(szOld==size_t(n))
 		return p;
 
 	SHip* hN=GetHip(n);
@@ -129,7 +118,7 @@ void* CSqLite3MemAloc::SHips::Realloc(void* p,int n)
 	}
 
 	void* pNew=Malloc(n);
-	memcpy(pNew,p,min(n,(int)szOld));
+	memcpy(pNew,p,std::min(n,(int)szOld));
 	Free(p);
 	return pNew;
 }
@@ -139,7 +128,7 @@ size_t CSqLite3MemAloc::SHips::Size(void* p)
 		return 0;
 	SShunk &pSh=((SShunk *)p)[-1];
 	return pSh.nSize;
-}           
+}
 
 CSqLite3MemAloc::SHip* CSqLite3MemAloc::SHips::GetHip(int n)
 {
@@ -158,9 +147,9 @@ CSqLite3MemAloc::SHip* CSqLite3MemAloc::SHips::GetHip(int n)
 ////////////////////////////////////////
 
 CSqLite3MemAloc::SHip::SHip(int SizeShunk,int nVer)
-:m_SizeShunk( SizeShunk)
-,m_nVer(nVer)
-,m_CountShunk(max(16,nVer*65536/SizeShunk))
+:m_nVer(nVer)
+,m_SizeShunk( SizeShunk)
+,m_CountShunk(std::max(16,nVer*65536/SizeShunk))
 ,m_nPosNext(0)
 ,m_pNext(NULL)
 ,m_pBuf(new __int8[m_CountShunk*m_SizeShunk])
@@ -187,7 +176,7 @@ SHip * m_pNext; //Позиция следующего в этой куче
 */
 void* CSqLite3MemAloc::SHip::Malloc(int n)
 {
-	if(m_nPosNext!=-1)
+	if(m_nPosNext!=size_t(-1))
 	{
 
 		SShunk* sh=(SShunk*)(m_pBuf + m_nPosNext*m_SizeShunk);

@@ -21,9 +21,9 @@ void CSQLite3DB::Close()
 		m_pdb = NULL;
 	}
 }
-
-int CSQLite3DB::Open( 
-		const wchar_t* filename,   // Database filename 
+#ifdef WIN32
+int CSQLite3DB::Open(
+		const wchar_t* filename,   // Database filename
 		int flags               // Flags  смотри  sqlite3_open_v2
 		)
 {
@@ -31,15 +31,17 @@ int CSQLite3DB::Open(
 	CMyString::W2C(filename, &s, CP_UTF8);
 	return Open(s.c_str(),flags);
 }
+#endif //WIN32
 
-int CSQLite3DB::Open( 
-		const char* filename,   // Database filename (UTF-8) 
+int CSQLite3DB::Open(
+		const char* filename,   // Database filename (UTF-8)
 		int flags               // Flags  смотри  sqlite3_open_v2
 		)
 {
 	return sqlite3_open_v2(filename, &m_pdb, flags, NULL);
 }
 
+#ifdef WIN32
 
 int CSQLite3DB::Execute(const wchar_t* pwszSQL)
 {
@@ -49,20 +51,20 @@ int CSQLite3DB::Execute(const wchar_t* pwszSQL)
 
 	return Execute(s.c_str());
 }
-
+#endif //WIN32
 int CSQLite3DB::Execute(const char* pszSQL)
 {
 	int ret = sqlite3_exec(
-		  m_pdb,            // An open database 
+		  m_pdb,            // An open database
 		  pszSQL,			// SQL to be evaluated
-		  NULL,				// Callback function 
-		  NULL,             // 1st argument to callback 
-		  NULL              // Error msg written here 
+		  NULL,				// Callback function
+		  NULL,             // 1st argument to callback
+		  NULL              // Error msg written here
 		);
-	
+
 	return ret;
 }
-
+#ifdef WIN32
 void CSQLite3DB::DropTable(const wchar_t* pwszTableName)
 {
 	std::wstring ws(pwszTableName);
@@ -72,13 +74,6 @@ void CSQLite3DB::DropTable(const wchar_t* pwszTableName)
 	DropTable(s.c_str());
 }
 
-void CSQLite3DB::DropTable(const char* pszTableName)
-{
-	CStringA s = "DROP TABLE IF EXISTS ";
-	s += pszTableName;
-	Execute(s);
-
-}
 
 void CSQLite3DB::DropView(const wchar_t* pwszTableName)
 {
@@ -89,10 +84,20 @@ void CSQLite3DB::DropView(const wchar_t* pwszTableName)
 	DropView(s.c_str());
 }
 
+#endif //WIN32
+
+void CSQLite3DB::DropTable(const char* pszTableName)
+{
+	std::string s = "DROP TABLE IF EXISTS ";
+	s += pszTableName;
+	Execute(s.c_str());
+
+}
+
 void CSQLite3DB::DropView(const char* pszTableName)
 {
-	CStringA s = "DROP VIEW IF EXISTS ";
+	std::string s = "DROP VIEW IF EXISTS ";
 	s += pszTableName;
-	Execute(s);
+	Execute(s.c_str());
 }
 

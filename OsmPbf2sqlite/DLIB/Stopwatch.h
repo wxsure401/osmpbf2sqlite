@@ -11,7 +11,12 @@ public:
 	void Stop(const char* sText);
 
 private:
+#ifdef WIN32
 	static double m_dFreq;
 	__int64 m_liStart;
+#else
+	 boost::xtime m_xtStart;
+#endif
+
 };
 

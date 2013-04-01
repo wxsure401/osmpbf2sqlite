@@ -10,7 +10,7 @@ public:
 	CMyString(void);
 	~CMyString(void);
 
-	//Конвертируем строку из wchar_t то char и обратно кодировка на выходе задаётся параметром 
+	//Конвертируем строку из wchar_t то char и обратно кодировка на выходе задаётся параметром
 	//если size_str ==-1 то считаем размеры сами
 	static void W2C(const std::wstring& ws, std::string* str,unsigned uCodePage=CP_ACP);
 	static void W2C(const wchar_t* ws, unsigned size_ws,std::string* str,unsigned uCodePage=CP_ACP);
@@ -33,18 +33,24 @@ public:
 	typedef std::vector<std::wstring > CarWString;
 };
 
+#ifdef WIN32
 inline	void CMyString::W2C(const std::wstring& ws, std::string* str,unsigned uCodePage/*=CP_ACP*/)
 	{ W2C(ws.c_str(),ws.size(),str,uCodePage);}
 
 inline	void CMyString::C2W(const std::string& ws, std::wstring* str,unsigned uCodePage/*=CP_ACP*/)
 	{ C2W(ws.c_str(),ws.size(),str,uCodePage);}
+#endif
 
 inline	const wchar_t* CMyString::SkeepSpace(const wchar_t*ws)
-	{ 
+	{
 		if(ws)
 		{
-			while(*ws!=0  && ( unsigned short(*ws))<=(unsigned short)L' ')
-			{	++ws;}
+		    static const unsigned short a=L' ';
+			while(*ws!=0  &&
+                ( (unsigned short)(*ws))<=a)
+			{
+			    	++ws;
+			}
 		}
 		return ws;
 	}
