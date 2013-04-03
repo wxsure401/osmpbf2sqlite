@@ -14,7 +14,7 @@
 namespace OSMPBF {
 
     // library version
-    static const char *version = "1.2.1";
+    //static const char *version = "1.2.1";
 
     // the maximum size of a blob header in bytes
     static const int max_blob_header_size = 64 * 1024; // 64 kB
@@ -24,7 +24,7 @@ namespace OSMPBF {
 
     // resolution for longitude/latitude used for conversion
     // between representation as double and as int
-    static const int lonlat_resolution = 1000 * 1000 * 1000; 
+    static const int lonlat_resolution = 1000 * 1000 * 1000;
 
 }
 

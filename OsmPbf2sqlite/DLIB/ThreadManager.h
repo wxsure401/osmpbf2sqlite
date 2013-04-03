@@ -84,7 +84,7 @@ public:
 
 	void SetThreadPriority(int nPriority);
 
-	static int GetCountKernels(); // сколько в системя ядер
+	static unsigned GetCountKernels(); // сколько в системя ядер
 
 	size_t GetCountThread()const
 		{return m_arHandle.size();} // сколько потоков обрабатывают задачи в рамках этого объекьа
@@ -102,25 +102,22 @@ private:
 
 		std::vector<STasksGrup> m_arDefsTasks; //Массив зависимостей
 		std::vector<TaskId> m_arTasks; //Массив готовых задач нужных для начала выполнения этой задачи
-		bool operator<(const STask& t)const
-			{	return m_taskId < t.m_taskId;	}
-
 		void ChekStateWP();
 
 	};
 
-	typedef std::set<STask> CTasks;
+	typedef std::map<TaskId,STask> CTasks;
 	CTasks m_arTask;
 
-	const STask &GetTask(TaskId tid);
+	STask &GetTask(TaskId tid);
 	CTasks::iterator GetTaskIterator(TaskId tid);
 
 
 
 	struct SThread
 	{
-		SThread():m_ThreadId(0),m_taskWork(0){}
-		DWORD m_ThreadId;
+		SThread():m_taskWork(0){}
+		boost::thread::id m_ThreadId;
 		TaskId m_taskWork;
 
 		//Добавим задачу на выполнение после  задачи с идом GrupId. Если Групп ид ==0 то
@@ -131,7 +128,8 @@ private:
 
 
 	std::vector<SThread> m_arThreads;
-	std::vector<HANDLE> m_arHandle;
+//	std::vector<HANDLE> m_arHandle;
+	std::vector<boost::thread> m_arHandle;
 
 	static const UINT TM_START=WM_USER+1;
 	static const UINT TM_INIT= WM_USER+2;
@@ -140,6 +138,8 @@ private:
 
 
 	void WakeUpThread();
+	bool PostThreadMessage(boost::thread::id id,unsigned message);
+
 };
 
 
@@ -171,8 +171,9 @@ inline bool CThreadManager::STask::operator<(const CThreadManager::STask::STask&
 {	return m_taskId<t.m_taskId;
 }
 */
-inline const CThreadManager::STask &CThreadManager::GetTask(CThreadManager::TaskId tid)
+inline CThreadManager::STask &CThreadManager::GetTask(CThreadManager::TaskId tid)
 {
 
-	return (*GetTaskIterator(tid));
+    CTasks::iterator ti=GetTaskIterator(tid);
+	return ti->second;
 }

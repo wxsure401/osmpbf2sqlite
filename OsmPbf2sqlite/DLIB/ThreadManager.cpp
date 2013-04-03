@@ -1,6 +1,12 @@
 #include "../stdafx.h"
 #include "ThreadManager.h"
 
+bool CThreadManager::PostThreadMessage(boost::thread::id id,unsigned message)
+{
+    assert(false);
+    //todo
+}
+
 CThreadManager::CThreadManager(unsigned nThread)
 {
 	if(nThread==0)
@@ -11,10 +17,13 @@ CThreadManager::CThreadManager(unsigned nThread)
 	m_arHandle.resize(nThread);
 	for(unsigned i=0; i<nThread; ++i)
 	{
+	    m_arHandle[i]=boost::thread(Thread,&m_arThreads[i].m_ThreadId);
+	    m_arThreads[i].m_ThreadId=m_arHandle[i].get_id();
+	    PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT);
 
-		m_arHandle[i]=::CreateThread(NULL,0,Thread,this,0,&m_arThreads[i].m_ThreadId );
-		while(!::PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT,0,0))
-			Sleep(0);
+		//m_arHandle[i]=::CreateThread(NULL,0,Thread,this,0,&m_arThreads[i].m_ThreadId );
+		//while(!PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT,0,0))
+			//Sleep(0);
 
 	}
 
@@ -22,6 +31,13 @@ CThreadManager::CThreadManager(unsigned nThread)
 
 CThreadManager::~CThreadManager(void)
 {
+	for(unsigned i=0; i<m_arThreads.size(); ++i)
+        PostThreadMessage(m_arThreads[i].m_ThreadId, WM_QUIT);
+	for(unsigned i=0; i<m_arThreads.size(); ++i)
+        m_arHandle[i].join();
+		//CloseHandle(m_arHandle[i]);
+
+    /*
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
 		::PostThreadMessage(m_arThreads[i].m_ThreadId, WM_QUIT,0,0);
 
@@ -31,7 +47,7 @@ CThreadManager::~CThreadManager(void)
 
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
 		::CloseHandle(m_arHandle[i]);
-
+*/
 
 }
 
@@ -91,7 +107,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 	pThread->m_pThreadManager=this;
 
 	CComCritSecLock<CComAutoCriticalSection> l(m_cs);
-	m_arTask.insert(ta);
+	m_arTask[ta.m_taskId]=ta;
 	STask &t=GetTask(ta.m_taskId);
 
 	if(t.m_etiState==etiWaitPrev)
@@ -100,7 +116,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 		int nIns=0;
 		for(unsigned i=0;i<t.m_arDefsTasks.size();++i)
 		{
-			STasksGrup &tg=t.m_arDefsTasks[i];
+			const STasksGrup &tg=t.m_arDefsTasks[i];
 			if(tg.m_bGrup)
 			{
 				for(int j=0;j<tg.m_nCount;++j)
@@ -109,15 +125,15 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 					for(CTasks::iterator ti=m_arTask.begin();ti!=m_arTask.end();++ti)
 					{
 						//if(ti->m_etiState==etiReadyUnкnown && ti->m_Grup==tg.m_gidAfter)
-						if(ti->m_etiState == etiReadyUnknown  &&  ti->m_Grup==tg.m_gidAfter)
+						if(ti->second.m_etiState == etiReadyUnknown  &&  ti->second.m_Grup==tg.m_gidAfter)
 						{
 
-							if(std::find(&t.m_arTasks[0],&t.m_arTasks[nPosOut],ti->m_taskId)!=&t.m_arTasks[nPosOut])  //убираем зацикливание
+							if(std::find(&t.m_arTasks[0],&t.m_arTasks[nPosOut],ti->second.m_taskId)!=&t.m_arTasks[nPosOut])  //убираем зацикливание
 							{
-								t.m_arTasks[nPosOut]=ti->m_taskId;
-								if(--ti->m_nCountCoin == 0)
+								t.m_arTasks[nPosOut]=ti->second.m_taskId;
+								if(--ti->second.m_nCountCoin == 0)
 								{
-									ti->m_etiState=etiReady;
+									ti->second.m_etiState=etiReady;
 									++nIns;
 								}
 								break;
@@ -161,11 +177,15 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 //static
 
 //static
-int CThreadManager::GetCountKernels() // сколько в системя ядер
+unsigned CThreadManager::GetCountKernels() // сколько в системя ядер
 {
+    return boost::thread::hardware_concurrency();
+    /*
+
 	SYSTEM_INFO sysinfo;
 	::GetSystemInfo(&sysinfo);
 	return sysinfo.dwNumberOfProcessors;
+	*/
 }
 
 DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
@@ -181,7 +201,9 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 		{
 		case TM_INIT:
 			{
-				DWORD tid=::GetCurrentThreadId();
+				//DWORD tid=::GetCurrentThreadId();
+				boost::thread::id tid=boost::this_thread::get_id();
+
 				for(unsigned i=0;i<ptm->m_arThreads.size();++i)
 				{
 					if(ptm->m_arThreads[i].m_ThreadId==tid)
@@ -201,14 +223,14 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 					//ищем своюодную задачу
 					for(CTasks::iterator ti=ptm->m_arTask.begin();ti!=ptm->m_arTask.end();++ti)
 					{
-						if(ti->m_etiState==etiWaitThread)
+						if(ti->second.m_etiState==etiWaitThread)
 						{
 							if(*pMyTask==NULL)
 							{
 
-								*pMyTask=ti->m_taskId;
-								art=ti->m_arTasks;
-								ti->m_etiState=etiWork;
+								*pMyTask=ti->second.m_taskId;
+								art=ti->second.m_arTasks;
+								ti->second.m_etiState=etiWork;
 							}
 							else
 							{
@@ -247,26 +269,26 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 							t.m_etiState=etiReady;
 							break;
 						}
-						if(ti->m_etiState==etiWaitPrev)
+						if(ti->second.m_etiState==etiWaitPrev)
 						{
 							//бежим по ожидаемым
 							int nPos=0;
-							for(unsigned i=0;i<ti->m_arDefsTasks.size();++i)
+							for(unsigned i=0;i<ti->second.m_arDefsTasks.size();++i)
 							{
 								if(t.m_nCountCoin==0)
 									break;
 
-								STasksGrup &tg=ti->m_arDefsTasks[i];
+								STasksGrup &tg=ti->second.m_arDefsTasks[i];
 								if(tg.m_bGrup)
 								{
 									if(tg.m_gidAfter==t.m_Grup)
 									{
 										for(int j=0;j<tg.m_nCount;++j)
 										{
-											if(ti->m_arTasks[nPos]==NULL)
+											if(ti->second.m_arTasks[nPos]==NULL)
 											{
-												ti->m_arTasks[nPos]=ptMyTask;
-												ti->ChekStateWP();
+												ti->second.m_arTasks[nPos]=ptMyTask;
+												ti->second.ChekStateWP();
 												--t.m_nCountCoin;
 
 												nPos+=tg.m_nCount-j;
@@ -285,8 +307,8 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 								{
 									if(tg.m_pThreadAfter==ptMyTask)
 									{
-										ti->m_arTasks[nPos]=ptMyTask;
-										ti->ChekStateWP();
+										ti->second.m_arTasks[nPos]=ptMyTask;
+										ti->second.ChekStateWP();
 										if(--t.m_nCountCoin==0)
 											break;
 									}

@@ -63,6 +63,7 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     #define HANDLE unsigned
     #define UINT unsigned
     #define LPVOID void*
+    #define WM_QUIT 10
     #define WM_USER 100
     #define WINAPI
     #define CComCritSecLock  boost::lock_guard
