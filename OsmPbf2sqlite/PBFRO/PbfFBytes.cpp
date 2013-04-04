@@ -1,4 +1,4 @@
-#include "../StdAfx.h"
+#include "../stdafx.h"
 #include "PbfFBytes.h"
 
 namespace PBFRO {
@@ -11,11 +11,11 @@ FBytes::~FBytes(void)
 {
 }
 //bool FBytes::Read(CodedInputStream input)
-//virtual 
+//virtual
 bool FBytes::Read(CInputStream *pis)
 {
 	size_t length;
-	if (!pis->ReadVariant(length)) 
+	if (!pis->ReadVariant(length))
 		return false;
 	return  pis->InternalReadStringInline(this,length);
 }

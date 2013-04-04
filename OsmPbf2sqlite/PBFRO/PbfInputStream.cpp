@@ -1,4 +1,4 @@
-#include "../StdAfx.h"
+#include "../stdafx.h"
 #include "PbfField.h"
 
 namespace PBFRO {
@@ -15,33 +15,33 @@ CInputStream::~CInputStream(void)
 
 bool CInputStream::SkipField()
 {
-	switch (CField::GetTagWireType(last_tag_)) 
+	switch (CField::GetTagWireType(last_tag_))
 	{
-	case EWT_VARINT: 
+	case EWT_VARINT:
 		{
 			unsigned __int64 value;
 			return ReadVariant(value);
 		}
 
-	case EWT_FIXED64: 
+	case EWT_FIXED64:
 		{
 			unsigned __int64 value;
 			return ReadLittleEndian(value);
 		}
 
-	case EWT_LENGTH_DELIMITED: 
+	case EWT_LENGTH_DELIMITED:
 		{
 			unsigned length;
 			return ReadVariant(length) && Skip(length);
 		}
 
-	case EWT_START_GROUP: 
+	case EWT_START_GROUP:
 		{
 			Tag t=last_tag_;
-			if (!IncrementRecursionDepth()) 
+			if (!IncrementRecursionDepth())
 				return false;
 
-			if (!SkipMessage()) 
+			if (!SkipMessage())
 				return false;
 
 			DecrementRecursionDepth();
@@ -50,10 +50,10 @@ bool CInputStream::SkipField()
 				CField::GetTagFieldNumber(t), EWT_END_GROUP) == last_tag_;
 		}
 
-	case EWT_END_GROUP: 
+	case EWT_END_GROUP:
 			return false;
 
-	case EWT_FIXED32: 
+	case EWT_FIXED32:
 		{
 			unsigned value;
 			return ReadLittleEndian(value);
@@ -64,12 +64,12 @@ bool CInputStream::SkipField()
 	return false;
 }
 
-bool  CInputStream::SkipMessage() 
+bool  CInputStream::SkipMessage()
 {
-	for(;;) 
+	for(;;)
 	{
 		Tag tag = ReadTag();
-		if (tag == 0) 
+		if (tag == 0)
 			return true;// End of input.  This is a valid place to end, so return true.
 
 		if (CField::GetTagWireType(tag) == EWT_END_GROUP)
@@ -81,4 +81,4 @@ bool  CInputStream::SkipMessage()
 
 
 
-}//namespace PBFRO 
+}//namespace PBFRO

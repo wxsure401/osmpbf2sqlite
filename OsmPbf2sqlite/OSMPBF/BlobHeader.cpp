@@ -1,4 +1,4 @@
-#include "../StdAfx.h"
+#include "../stdafx.h"
 #include "BlobHeader.h"
 
 namespace OSMPBF {
@@ -11,4 +11,4 @@ BlobHeader::~BlobHeader(void)
 {
 }
 
-}//namespace OSMPBF 
+}//namespace OSMPBF

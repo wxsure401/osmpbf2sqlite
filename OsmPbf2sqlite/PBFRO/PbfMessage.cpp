@@ -1,4 +1,4 @@
-#include "../StdAfx.h"
+#include "../stdafx.h"
 #include "PbfMessage.h"
 #include "PbfInputStream.h"
 
@@ -16,7 +16,7 @@ CMessage::~CMessage(void)
 bool CMessage::MergePartialFromCodedStream(CInputStream *pis)
 {
 	Tag tag;
-	while ((tag = pis->ReadTag()) != 0) 
+	while ((tag = pis->ReadTag()) != 0)
 	{
 		EWireType wire_type=GetTagWireType(tag);
 		if(wire_type==EWT_END_GROUP)
@@ -45,12 +45,12 @@ bool CMessage::MergePartialFromCodedStream(CInputStream *pis)
 
 }
 
-//virtual 
+//virtual
 
 bool CMessage::Read(CInputStream *pis)
 {
 	size_t length;
-	if (!pis->ReadVariant(length)) 
+	if (!pis->ReadVariant(length))
 		return false;
 
 	if(!pis->IncrementRecursionDepth())
@@ -67,7 +67,7 @@ bool CMessage::Read(CInputStream *pis)
 	return true;
 }
 
-//virtual 
+//virtual
 void CMessage::Clear()
 {
 	CField::Clear();

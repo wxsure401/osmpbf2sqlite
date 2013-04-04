@@ -1,25 +1,21 @@
 #include "../stdafx.h"
 #include "ThreadManager.h"
 
-bool CThreadManager::PostThreadMessage(boost::thread::id id,unsigned message)
-{
-    assert(false);
-    //todo
-}
 
 CThreadManager::CThreadManager(unsigned nThread)
+//:m_arHandle(nThread)
 {
-	if(nThread==0)
-		nThread=GetCountKernels();
+	//if(nThread==0)
+		//nThread=GetCountKernels();
 
 	SThread st;
 	m_arThreads.resize(nThread,st);
 	m_arHandle.resize(nThread);
 	for(unsigned i=0; i<nThread; ++i)
 	{
-	    m_arHandle[i]=boost::thread(Thread,&m_arThreads[i].m_ThreadId);
-	    m_arThreads[i].m_ThreadId=m_arHandle[i].get_id();
-	    PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT);
+	    m_arHandle[i]=new boost::thread(Thread,&m_arThreads[i].m_ThreadId);
+	    m_arThreads[i].m_ThreadId=m_arHandle[i]->get_id();
+	    m_arThreads[i].m_MessageQueue.PostThreadMessage(TM_INIT);
 
 		//m_arHandle[i]=::CreateThread(NULL,0,Thread,this,0,&m_arThreads[i].m_ThreadId );
 		//while(!PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT,0,0))
@@ -32,9 +28,13 @@ CThreadManager::CThreadManager(unsigned nThread)
 CThreadManager::~CThreadManager(void)
 {
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
-        PostThreadMessage(m_arThreads[i].m_ThreadId, WM_QUIT);
+        m_arThreads[i].m_MessageQueue.PostThreadMessage( WM_QUIT);
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
-        m_arHandle[i].join();
+        m_arHandle[i]->join();
+
+
+	for(unsigned i=0; i<m_arThreads.size(); ++i)
+        delete m_arHandle[i];
 		//CloseHandle(m_arHandle[i]);
 
     /*
@@ -188,30 +188,21 @@ unsigned CThreadManager::GetCountKernels() // сколько в системя ядер
 	*/
 }
 
-DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
+//DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
+void CThreadManager::SThread::operator()()
 {
 		//setlocale( LC_ALL, "English" );
 
-	MSG msg;
+	unsigned msg;
 	TaskId *pMyTask=NULL;
-	CThreadManager *ptm=(CThreadManager *)lpThreadParameter;
-	while (GetMessage(&msg,NULL,0,0))
+	//CThreadManager *ptm=(CThreadManager *)lpThreadParameter;
+	while (m_MessageQueue.GetMessage(&msg))
 	{
-		switch(msg.message)
+		switch(msg)
 		{
 		case TM_INIT:
 			{
-				//DWORD tid=::GetCurrentThreadId();
-				boost::thread::id tid=boost::this_thread::get_id();
-
-				for(unsigned i=0;i<ptm->m_arThreads.size();++i)
-				{
-					if(ptm->m_arThreads[i].m_ThreadId==tid)
-					{
-						pMyTask=&ptm->m_arThreads[i].m_taskWork;
-						break;
-					}
-				}
+				pMyTask=&m_taskWork;
 			}
 			break;
 		case TM_START:
@@ -219,9 +210,9 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 			{
 				std::vector<TaskId> art;
 				{
-					CComCritSecLock<CComAutoCriticalSection> l(ptm->m_cs);
+					CComCritSecLock<CComAutoCriticalSection> l(m_ptm->m_cs);
 					//ищем своюодную задачу
-					for(CTasks::iterator ti=ptm->m_arTask.begin();ti!=ptm->m_arTask.end();++ti)
+					for(CTasks::iterator ti=m_ptm->m_arTask.begin();ti!=m_ptm->m_arTask.end();++ti)
 					{
 						if(ti->second.m_etiState==etiWaitThread)
 						{
@@ -234,7 +225,7 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 							}
 							else
 							{
-								ptm->WakeUpThread();
+								m_ptm->WakeUpThread();
 								break;
 							}
 						}
@@ -257,12 +248,12 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 				{
 					//Разбираемся с задачами
 
-					CComCritSecLock<CComAutoCriticalSection> l(ptm->m_cs);
-					STask &t=ptm->GetTask(*pMyTask);
+					CComCritSecLock<CComAutoCriticalSection> l(m_ptm->m_cs);
+					STask &t=m_ptm->GetTask(*pMyTask);
 					t.m_etiState=etiReadyUnknown;
 					//Добавляем себя в ожидающие задачи
 					//идём по всем задачам
-					for(CTasks::iterator ti=ptm->m_arTask.begin();ti!=ptm->m_arTask.end();++ti)
+					for(CTasks::iterator ti=m_ptm->m_arTask.begin();ti!=m_ptm->m_arTask.end();++ti)
 					{
 						if(t.m_nCountCoin==0)
 						{
@@ -321,9 +312,9 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 					//Отпускаем отработанные
 					for(unsigned i=0;i<art.size();++i)
 					{
-						CTasks::iterator t2=ptm->GetTaskIterator(art[i]);
-						if(--t2->m_nCountCoinReady==0)
-							ptm->m_arTask.erase(t2);
+						CTasks::iterator t2=m_ptm->GetTaskIterator(art[i]);
+						if(--t2->second.m_nCountCoinReady==0)
+							m_ptm->m_arTask.erase(t2);
 					}
 
 					*pMyTask=NULL;
@@ -336,34 +327,42 @@ DWORD WINAPI CThreadManager::Thread(  LPVOID lpThreadParameter  )
 		}
 
 	}
-	return 0;
+	//return 0;
 }
+/*
 void CThreadManager::SetThreadPriority(int nPriority)
 {
 	for(unsigned i=0;i<m_arHandle.size();++i)
 		::SetThreadPriority(m_arHandle[i],nPriority);
 }
-
+*/
 
 
 class CWait : public CThreadUnit
 {
 public:
-	CWait()
-		: m_hEvent(::CreateEvent(NULL,TRUE,FALSE,NULL))
-		{
+	CWait(): m_bDataReady(false)	{	}
+	~CWait(){	}
 
-		}
-	~CWait()
-	{
-		::CloseHandle(m_hEvent);
-	}
 
-	HANDLE  m_hEvent;
+    void Wait()
+    {
+            boost::unique_lock<boost::mutex> lock(m_Mut);
+            while(!m_bDataReady)
+                m_Cond.wait(lock);
+
+    }
 private:
+    boost::condition_variable m_Cond; //событие
+    boost::mutex m_Mut;
+    bool m_bDataReady;
 	 void Start(CThreadUnit** pTasks, int countTasks)
 	 {
-		::SetEvent(m_hEvent);
+        {
+            boost::lock_guard<boost::mutex> lock(m_Mut);
+            m_bDataReady=true;
+        }
+        m_Cond.notify_one();
 	 }
 
 
@@ -378,17 +377,15 @@ void CThreadManager::Wait(GrupId giW,int nCount)
 		//ищем
 		CComCritSecLock<CComAutoCriticalSection> l(m_cs);
 		for(CTasks::iterator ti=m_arTask.begin();ti!=m_arTask.end();++ti)
-			if(ti->m_Grup==giW)
-				nCount+=ti->m_nCountCoin;
+			if(ti->second.m_Grup==giW)
+				nCount+=ti->second.m_nCountCoin;
 
 	}
 
 	BeginTaskG(&w,0,giW,nCount,0);
 
 
-
-	::WaitForSingleObject(w.m_hEvent,INFINITE);
-
+    w.Wait();
 
 }
 
@@ -396,9 +393,9 @@ void CThreadManager::Wait(GrupId giW,int nCount)
 
 CThreadManager::CTasks::iterator CThreadManager::GetTaskIterator(CThreadManager::TaskId tid)
 {
-	STask t;
-	t.m_taskId=tid;
-	return m_arTask.find(t);
+	//STask t;
+	//t.m_taskId=tid;
+	return m_arTask.find(tid);
 }
 
 void CThreadManager::WakeUpThread()
@@ -406,7 +403,7 @@ void CThreadManager::WakeUpThread()
 	for(unsigned i=0;i<m_arThreads.size();++i)
 		if(m_arThreads[i].m_taskWork==0)
 		{
-			::PostThreadMessage(m_arThreads[i].m_ThreadId,TM_START,0,0);
+		    m_arThreads[i].m_MessageQueue.PostThreadMessage(TM_START);
 			break;
 		}
 }
@@ -422,3 +419,13 @@ void CThreadManager::STask::ChekStateWP()
 			return;
 	m_etiState=etiWaitThread;
 }
+
+/////////////////////////////////////////////////////////////
+
+bool CThreadManager:: SThread::CMessageQueue::PostThreadMessage(unsigned message)
+{
+    assert(false);
+    //todo
+    return false;
+}
+

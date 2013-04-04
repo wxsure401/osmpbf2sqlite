@@ -82,7 +82,7 @@ public:
 
 
 
-	void SetThreadPriority(int nPriority);
+	//void SetThreadPriority(int nPriority);
 
 	static unsigned GetCountKernels(); // сколько в системя ядер
 
@@ -119,6 +119,18 @@ private:
 		SThread():m_taskWork(0){}
 		boost::thread::id m_ThreadId;
 		TaskId m_taskWork;
+		CThreadManager *m_ptm;
+		class CMessageQueue
+		{
+        public:
+
+            bool PostThreadMessage(unsigned message);
+            //Взять из очерели  Ели WM_QUIT то возвращает фальш
+            bool GetMessage(unsigned *pMessage);
+
+		};
+		 CMessageQueue m_MessageQueue;
+		 void operator()();
 
 		//Добавим задачу на выполнение после  задачи с идом GrupId. Если Групп ид ==0 то
 		//добавляем полюбому
@@ -129,7 +141,7 @@ private:
 
 	std::vector<SThread> m_arThreads;
 //	std::vector<HANDLE> m_arHandle;
-	std::vector<boost::thread> m_arHandle;
+	std::vector<boost::thread *> m_arHandle;
 
 	static const UINT TM_START=WM_USER+1;
 	static const UINT TM_INIT= WM_USER+2;
@@ -138,7 +150,7 @@ private:
 
 
 	void WakeUpThread();
-	bool PostThreadMessage(boost::thread::id id,unsigned message);
+
 
 };
 
