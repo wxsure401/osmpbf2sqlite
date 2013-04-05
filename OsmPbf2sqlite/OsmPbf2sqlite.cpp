@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		CComAutoCriticalSection m_csFile;
 		std::vector<CThreadLoader> ar(2);
-		
+
 			CThreadManager m_tm(ar.size());
 			for(unsigned i=0;i<ar.size();++i)
 			{

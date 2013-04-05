@@ -1,7 +1,7 @@
 # cotire OsmPbf2sqlite project
 set (PROJECT OsmPbf2sqlite)
 
-set(BOOST_ROOT /home/di/e/boost_1_53_0)
+#set(BOOST_ROOT /home/di/e/boost_1_53_0)
 
 add_executable(${PROJECT} OsmPbf2sqlite.cpp CdbDictionary.cpp ConsoleOutput.cpp CtabKeyValue.cpp DB.cpp
 SqLite3MemAloc.cpp
@@ -58,16 +58,16 @@ PBFRO/TFuint.h
 )
 
 #для boost
-set (BOOST_COMPONENTS 
+set (BOOST_COMPONENTS
 	thread
 	filesystem)
- 
+
 set (Boost_USE_STATIC_LIBS ON)
- 
+
 set (Boost_USE_MULTITHREADED ON)
- 
+
 find_package (Threads)
- 
+
 find_package (Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries (${PROJECT} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
@@ -99,7 +99,13 @@ if (TARGET ${_unityTargetName})
 	message(STATUS "${PROJECT} unity target: ${_unityTargetName}")
 endif()
 
- target_link_libraries (${PROJECT}  sqlite3 zlib)
+find_package( ZLIB REQUIRED )
+if ( ZLIB_FOUND )
+    include_directories( ${ZLIB_INCLUDE_DIRS} )
+    target_link_libraries( ${PROJECT} ${ZLIB_LIBRARIES} )
+endif( ZLIB_FOUND )
+
+ target_link_libraries (${PROJECT}  sqlite3)
 
 if (MSVC)
 	target_link_libraries (${PROJECT}  Ws2_32.lib )

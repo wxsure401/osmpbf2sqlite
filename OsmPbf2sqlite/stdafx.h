@@ -71,6 +71,7 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     #define _tcsrchr strrchr
     #define DeleteFileW(a)
     #define __TLS __thread
+    #define _tmain main
 
     inline void ZeroMemory(void* pBuf,size_t sz)
     {
