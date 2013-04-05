@@ -59,6 +59,7 @@ PBFRO/TFuint.h
 
 #для boost
 set (BOOST_COMPONENTS
+    system
 	thread
 	filesystem)
 
@@ -110,4 +111,6 @@ endif( ZLIB_FOUND )
 if (MSVC)
 	target_link_libraries (${PROJECT}  Ws2_32.lib )
 	add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
+else()
+    target_link_libraries (${PROJECT}  rt)
 endif()

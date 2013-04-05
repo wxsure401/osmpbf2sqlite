@@ -10,13 +10,15 @@ public:
 	virtual ~CSQLite3DB(void);
 	void Close();
 
-	int Open( 
+#ifdef WIN32
+	int Open(
 		const wchar_t *filename,   // Database filename
 		int flags               // Flags  смотри  sqlite3_open_v2
 		);
+#endif
 
-	int Open( 
-		const char* filename,   // Database filename (UTF-8) 
+	int Open(
+		const char* filename,   // Database filename (UTF-8)
 		int flags               // Flags  смотри  sqlite3_open_v2
 		);
 
