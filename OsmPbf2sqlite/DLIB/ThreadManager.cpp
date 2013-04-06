@@ -5,17 +5,19 @@
 CThreadManager::CThreadManager(unsigned nThread)
 //:m_arHandle(nThread)
 {
-	//if(nThread==0)
-		//nThread=GetCountKernels();
+	if(nThread==0)
+		nThread=GetCountKernels();
 
-	SThread st;
-	m_arThreads.resize(nThread,st);
+	//SThread st;
+	m_arThreads.resize(nThread);
 	m_arHandle.resize(nThread);
 	for(unsigned i=0; i<nThread; ++i)
 	{
-	    m_arHandle[i]=new boost::thread(m_arThreads[i]);
-	    m_arThreads[i].m_ThreadId=m_arHandle[i]->get_id();
-	    m_arThreads[i].m_MessageQueue.PostThreadMessage(TM_INIT);
+        m_arThreads[i]=new SThread;
+
+	    m_arHandle[i] =new boost::thread(boost::ref(*m_arThreads[i]));
+	    m_arThreads[i]->m_ThreadId=m_arHandle[i]->get_id();
+	    m_arThreads[i]->m_MessageQueue.PostThreadMessage(TM_INIT);
 
 		//m_arHandle[i]=::CreateThread(NULL,0,Thread,this,0,&m_arThreads[i].m_ThreadId );
 		//while(!PostThreadMessage(m_arThreads[i].m_ThreadId,TM_INIT,0,0))
@@ -28,13 +30,15 @@ CThreadManager::CThreadManager(unsigned nThread)
 CThreadManager::~CThreadManager(void)
 {
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
-        m_arThreads[i].m_MessageQueue.PostThreadMessage( WM_QUIT);
+        m_arThreads[i]->m_MessageQueue.PostThreadMessage( WM_QUIT);
 	for(unsigned i=0; i<m_arThreads.size(); ++i)
         m_arHandle[i]->join();
 
 
-	for(unsigned i=0; i<m_arThreads.size(); ++i)
+	for(unsigned i=0; i<m_arHandle.size(); ++i)
         delete m_arHandle[i];
+    for(unsigned i=0; i<m_arThreads.size(); ++i)
+        delete m_arThreads[i];
 		//CloseHandle(m_arHandle[i]);
 
     /*
@@ -401,9 +405,9 @@ CThreadManager::CTasks::iterator CThreadManager::GetTaskIterator(CThreadManager:
 void CThreadManager::WakeUpThread()
 {
 	for(unsigned i=0;i<m_arThreads.size();++i)
-		if(m_arThreads[i].m_taskWork==0)
+		if(m_arThreads[i]->m_taskWork==0)
 		{
-		    m_arThreads[i].m_MessageQueue.PostThreadMessage(TM_START);
+		    m_arThreads[i]->m_MessageQueue.PostThreadMessage(TM_START);
 			break;
 		}
 }
@@ -424,14 +428,66 @@ void CThreadManager::STask::ChekStateWP()
 
 bool CThreadManager::SThread::CMessageQueue::PostThreadMessage(unsigned message)
 {
-    assert(false);
-    //todo
-    return false;
+    {
+        boost::lock_guard<boost::mutex> lock(m_mut);
+        if(m_arMessage[0]==WM_QUIT)
+            return false;
+
+        if(message==WM_QUIT)
+        {
+            m_arMessage[0]=WM_QUIT;
+            m_nRead=0;
+        }
+        else
+        {
+            int nNext=m_nWrite+1;
+            if(nNext>=(int)m_arMessage.size())
+                nNext=0;
+            if(nNext==m_nWrite)
+            { //Увеличиваем очередь сообщений
+                int sz=m_arMessage.size();
+                std::vector<unsigned> ar(sz*2);
+                memcpy(&ar[sz+m_nRead],&m_arMessage[m_nRead],sizeof(int)*(sz-m_nRead));
+                memcpy(&ar[0],&m_arMessage[0],sizeof(int)*(m_nRead));
+                ar.swap(m_arMessage);
+                m_nRead+=sz;
+
+            }
+            m_nWrite=nNext;
+            m_arMessage[m_nWrite]=message;
+
+        }
+    }
+
+
+    m_cond.notify_one();
+    return true;
 }
 
  bool CThreadManager::SThread::CMessageQueue::GetMessage(unsigned *pMessage)
  {
-    assert(false);
-     return false;
+    boost::unique_lock<boost::mutex> lock(m_mut);
+    if(m_arMessage[0]==WM_QUIT)
+    {
+
+       *pMessage=WM_QUIT;
+       return false;
+
+    }
+    while(m_nRead==m_nWrite)
+    {
+        m_cond.wait(lock);
+        if(m_arMessage[0]==WM_QUIT)
+        {
+
+           *pMessage=WM_QUIT;
+           return false;
+
+        }
+    }
+    *pMessage=m_arMessage[m_nRead++];
+    if(m_nRead>=(int)m_arMessage.size())
+        m_nRead=0;
+    return true;
 
  }

@@ -1,4 +1,6 @@
 # cotire OsmPbf2sqlite project
+SET(CMAKE_BUILD_TYPE Debug)
+
 set (PROJECT OsmPbf2sqlite)
 
 #set(BOOST_ROOT /home/di/e/boost_1_53_0)

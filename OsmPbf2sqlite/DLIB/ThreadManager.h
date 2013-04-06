@@ -123,10 +123,18 @@ private:
 		class CMessageQueue
 		{
         public:
+            CMessageQueue():m_nWrite(0),m_nRead(0),m_arMessage(8){}
 
             bool PostThreadMessage(unsigned message);
             //Взять из очерели  Ели WM_QUIT то возвращает фальш
             bool GetMessage(unsigned *pMessage);
+
+            private:
+            int m_nWrite; //Позицция записи
+            int m_nRead;//Позицция чтения
+            std::vector<unsigned> m_arMessage;
+            boost::condition_variable m_cond; //событие
+            boost::mutex m_mut; //ожидание
 
 		};
 		 CMessageQueue m_MessageQueue;
@@ -139,7 +147,7 @@ private:
 	};
 
 
-	std::vector<SThread> m_arThreads;
+	std::vector<SThread*> m_arThreads;
 //	std::vector<HANDLE> m_arHandle;
 	std::vector<boost::thread *> m_arHandle;
 

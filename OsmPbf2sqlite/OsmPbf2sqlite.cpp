@@ -20,16 +20,24 @@ int _tmain(int argc, _TCHAR* argv[])
 	//setlocale( LC_ALL, "English" );
 
 
+    _TCHAR* fn=argv[1];
+    fn="/home/di/Загрузки/RU-MOW.osm.pbf";
+     argc=2;
+
 	CStopwatch sw;
-	if(argc!=2 || argv[1][0]==L'-' || argv[1][0]==L'/' )
+	if(argc!=2 || fn[0]==L'-'
+#ifdef WIN32
+        || fn[0]==L'/'
+#endif
+    )
 	{
-		info("Convert osm-pbf file to sqlite database. \t\tby deep125 03.2013 v1.0\nuse:\nosmpbf2sqlite.exe pbffile");
+		info("Convert osm-pbf file to sqlite database. \t\tby deep125 03.2013 v1.1\nuse:\nosmpbf2sqlite.exe pbffile");
 		return 0;
 
 	}
 
 	// open specified file
-	FILE *fp = _tfopen(argv[1] , _T("rb"));
+	FILE *fp = _tfopen(fn , _T("rb"));
 	if(  fp==NULL)
 	{
 		err("_wfopen failed!\n");
@@ -41,7 +49,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	ma.Init();
 
 	CDB m_db;
-	m_db.m_pSource=argv[1];
+	m_db.m_pSource=fn;
 	m_db.Init();
 
 	{

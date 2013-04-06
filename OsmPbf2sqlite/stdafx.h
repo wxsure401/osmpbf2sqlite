@@ -54,7 +54,7 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 	#define __int32 int
 	#define __int64 long long int
 	#define _THROW0()	throw ()
-	#define _TCHAR char
+	#define _TCHAR const char
 	#define _T(a) a
 	#define LONG long
 	#define _tfopen fopen
