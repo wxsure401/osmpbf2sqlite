@@ -13,7 +13,7 @@ CThreadManager::CThreadManager(unsigned nThread)
 	m_arHandle.resize(nThread);
 	for(unsigned i=0; i<nThread; ++i)
 	{
-	    m_arHandle[i]=new boost::thread(Thread,&m_arThreads[i].m_ThreadId);
+	    m_arHandle[i]=new boost::thread(m_arThreads[i]);
 	    m_arThreads[i].m_ThreadId=m_arHandle[i]->get_id();
 	    m_arThreads[i].m_MessageQueue.PostThreadMessage(TM_INIT);
 
@@ -422,10 +422,16 @@ void CThreadManager::STask::ChekStateWP()
 
 /////////////////////////////////////////////////////////////
 
-bool CThreadManager:: SThread::CMessageQueue::PostThreadMessage(unsigned message)
+bool CThreadManager::SThread::CMessageQueue::PostThreadMessage(unsigned message)
 {
     assert(false);
     //todo
     return false;
 }
 
+ bool CThreadManager::SThread::CMessageQueue::GetMessage(unsigned *pMessage)
+ {
+    assert(false);
+     return false;
+
+ }

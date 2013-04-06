@@ -63,13 +63,14 @@ void CDB::Close()
 	 m_db.Close();
 
 }
-std::wstring CDB::GetFileNameOut()const
+boost::filesystem::path CDB::GetFileNameOut()const
 {
-	std::wstring sOut;
+	boost::filesystem::path sOut;
 	sOut.assign(m_pSource,_tcsrchr(  m_pSource,_T('.')));
+	sOut+=".db3";
 
 
-	return sOut+L".db3";
+	return sOut;
 }
 
 void  CDB::CreateTables()

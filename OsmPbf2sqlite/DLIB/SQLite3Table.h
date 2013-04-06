@@ -10,7 +10,7 @@ public:
 	virtual ~CSQLite3Table(void);
 	void Close();
 
-	
+
 	CSQLite3DB* m_pDB;
 
 	int prepare(
@@ -25,7 +25,7 @@ public:
 
 	int reset();
 	int step();
-	
+
 	sqlite3_int64 last_insert_rowid();
 
 	int bind_blob( int, const void*, int n, void(*)(void*));
@@ -53,7 +53,9 @@ public:
 	const char *column_text(int iCol); //UTF8
 	const void *column_text16(int iCol); //UTF16
 	void column_text(int iCol, std::string* pStr); //.ACP
+#ifdef WIN32
 	void column_text(int iCol, std::wstring* pStr); //..юникод
+#endif
 
 	//CComAutoCriticalSection m_cs;
 

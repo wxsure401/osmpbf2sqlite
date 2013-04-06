@@ -29,7 +29,7 @@ public:
 	CSQLite3Table m_tabRelation_NotVisible;
 	CSQLite3Table m_tabRelationInfo_NotVisible;
 	CtabKeyValue::SDic m_dicRelationRole;
-	
+
 
 	CtabUser m_dicUser;
 
@@ -38,7 +38,8 @@ public:
 	CtabKeyValue m_tkvRelation;
 
 	const _TCHAR* m_pSource;
-	std::wstring GetFileNameOut()const;
+	//std::wstring GetFileNameOut()const;
+	boost::filesystem::path GetFileNameOut()const;
 	void  CreateTables();
 	void  PrepareTables();
 

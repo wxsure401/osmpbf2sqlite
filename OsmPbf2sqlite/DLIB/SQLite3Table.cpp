@@ -42,10 +42,12 @@ int CSQLite3Table::prepare(const char* szSql, int nSize)
 void CSQLite3Table::column_text(int iCol, std::string* pStr) //.ACP
 {
 	//CP_UTF8
-	std::wstring ws;
-	column_text(iCol, &ws);
-	CMyString::W2C(ws, pStr);
+//	std::wstring ws;
+	//column_text(iCol, &ws);
+	//CMyString::W2C(ws, pStr);
+	*pStr=*sqlite3_column_text(m_pStmt, iCol);
 }
+
 #ifdef WIN32
 
 int CSQLite3Table::prepare(const wchar_t* wszSql, int nSize)
