@@ -86,7 +86,7 @@ public:
 	typedef const char* Limit;
 	Limit PushLimit(size_t  len)
 	{
-		len=std::min(size(),len);
+		len=MIN(size(),len);
 		Limit old=m_pEnd;
 		m_pEnd=m_pBegin+len;
 		return old;

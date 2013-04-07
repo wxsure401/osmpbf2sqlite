@@ -21,7 +21,11 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
     _TCHAR* fn=argv[1];
+#ifdef WIN32
+
+#else
     fn="/home/di/Загрузки/RU-MOW.osm.pbf";
+#endif
      argc=2;
 
 	CStopwatch sw;

@@ -158,7 +158,7 @@ inline void svector< T,_Ax>::push_back(const T& t)
 		size_t sz=size();
 		if( capacity() <= sz)
 		{
-			reserve(std::max(size_t(32),sz*2));
+			reserve(MAX(size_t(32),sz*2));
 		}
 	}
 	_Alval.construct(m_pEnd++,t);

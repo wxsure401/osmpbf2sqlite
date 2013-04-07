@@ -119,7 +119,7 @@ void* CSqLite3MemAloc::SHips::Realloc(void* p,int n)
 	}
 
 	void* pNew=Malloc(n);
-	memcpy(pNew,p,std::min(n,(int)szOld));
+	memcpy(pNew,p,MIN(n,(int)szOld));
 	Free(p);
 	return pNew;
 }
@@ -150,7 +150,7 @@ CSqLite3MemAloc::SHip* CSqLite3MemAloc::SHips::GetHip(int n)
 CSqLite3MemAloc::SHip::SHip(int SizeShunk,int nVer)
 :m_nVer(nVer)
 ,m_SizeShunk( SizeShunk)
-,m_CountShunk(std::max(16,nVer*65536/SizeShunk))
+,m_CountShunk(MAX(16,nVer*65536/SizeShunk))
 ,m_nPosNext(0)
 ,m_pNext(NULL)
 ,m_pBuf(new __int8[m_CountShunk*m_SizeShunk])

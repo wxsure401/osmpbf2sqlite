@@ -45,6 +45,8 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 	#include "../Alien/zlib127/include/zlib.h"
     #define __TLS __declspec(thread)
     #define INTERLOCKED_INCREMENT(a) InterlockedIncrement(a)
+	#define MIN min
+	#define MAX max
 #else
 	#include <zlib.h>
 	#include <netinet/in.h>
@@ -72,6 +74,8 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     #define DeleteFileW(a)
     #define __TLS __thread
     #define _tmain main
+	#define MIN std::min
+	#define MAX std::max
 
     inline void ZeroMemory(void* pBuf,size_t sz)
     {

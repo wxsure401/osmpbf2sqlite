@@ -19,7 +19,7 @@ CMyString::~CMyString(void)
 		size_ws=wcslen(ws);
 
 	LPCSTR pszDefChar="?";
-	bool bUseDef=true, *pbUseDef=&bUseDef;
+	BOOL bUseDef=true, *pbUseDef=&bUseDef;
 
 	switch(uCodePage)
 	{
