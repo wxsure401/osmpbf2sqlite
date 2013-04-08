@@ -17,7 +17,7 @@ CSqLite3MemAloc::~CSqLite3MemAloc(void)
 }
 void CSqLite3MemAloc::Init()
 {
-    return;
+   return;
 	ASSERT(m_OldMem.pAppData==0);
 	sqlite3_config(SQLITE_CONFIG_GETMALLOC, &m_OldMem);
 
