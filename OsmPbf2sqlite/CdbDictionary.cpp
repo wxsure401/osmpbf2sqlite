@@ -13,7 +13,7 @@ CtabUser::~CtabUser(void)
 int CtabUser::GetID(int id,const char* sText, size_t sz)
 {
 
-  	 CComCritSecLock<CComAutoCriticalSection> l(m_cs);
+  	 boost::lock_guard<boost::mutex> l(m_cs);
 
 
 	CSet::const_iterator cit=m_set.find(id);

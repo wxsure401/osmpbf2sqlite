@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "Headerblock.h"
 namespace OSMPBF {
 Headerblock::Headerblock(void)

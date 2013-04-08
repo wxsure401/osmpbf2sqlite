@@ -57,7 +57,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	m_db.Init();
 
 	{
-		CComAutoCriticalSection m_csFile;
+		boost::mutex m_csFile;
 		std::vector<CThreadLoader> ar(2);
 
 			CThreadManager m_tm(ar.size());

@@ -60,7 +60,6 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 	#define _T(a) a
 	#define LONG long
 	#define _tfopen fopen
-    #define CComAutoCriticalSection boost::mutex
     #define DWORD unsigned
     #define HANDLE unsigned
     #define UINT unsigned
@@ -68,7 +67,7 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     #define WM_QUIT 10
     #define WM_USER 100
     #define WINAPI
-    #define CComCritSecLock  boost::lock_guard
+   // #define CComCritSecLock  boost::lock_guard
     #define MAX_PATH 512
     #define _tcsrchr strrchr
     #define DeleteFileW(a)

@@ -15,7 +15,7 @@ public:
 	virtual void Start(CThreadUnit** pTasks, int countTasks);
 
 	OSMPBF::PrimitiveBlock* m_pprimblock;
-	CComAutoCriticalSection* m_pcs;
+	boost::mutex* m_pcs;
 	FILE *m_fp;
 	CDB* m_pDB;
 

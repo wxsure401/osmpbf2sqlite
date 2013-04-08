@@ -110,7 +110,7 @@ void CtabKeyValue::Prepare(const OSMPBF::StringTable& arS,const OSMPBF::CarTaxts
 {
 
 	pAr->resize(arKeys.size());
-  	 CComCritSecLock<CComAutoCriticalSection> l(m_cs);
+  	 boost::lock_guard<boost::mutex> l(m_cs);
 	 for(unsigned i=0;i< arKeys.size(); ++i)
 	 {
 		 Sint &si=(*pAr)[i];

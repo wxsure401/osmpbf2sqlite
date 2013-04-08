@@ -25,7 +25,7 @@ public:
 		int nv;
 	};
 	typedef std::vector<Sint> SarInts;
-	CComAutoCriticalSection m_cs;
+	boost::mutex m_cs;
 	void Prepare(const OSMPBF::StringTable& arS,const OSMPBF::CarTaxts &arKeys,const OSMPBF::CarTaxts& arValues,SarInts *par);
 	void SaveId(__int64 id,const SarInts &ar);
 	

@@ -47,7 +47,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 
 		 {
 			 //Начало паралельной работы
-			CComCritSecLock<CComAutoCriticalSection> l(*m_pcs);
+			boost::lock_guard<boost::mutex> l(*m_pcs);
 			if(feof(m_fp))
 				break;
 
@@ -365,7 +365,7 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 	const PBFRO::FBytes &s=m_pprimblock->m_stringtable.m_s[n.m_info.m_user_sid.m_val];
 	int nUser=m_pDB->m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
 
-	CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
+	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 
 	//Таблица Node
@@ -503,7 +503,7 @@ void CThreadLoader::AddWay(const OSMPBF::Way& w)
 	m_pDB->m_tkvNode.Prepare(m_pprimblock->m_stringtable,
 		w.m_keys,w.m_vals,&arInts);
 
-	CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
+	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 	//Таблица Way
 	{
@@ -577,7 +577,7 @@ void CThreadLoader::AddRelations(const OSMPBF::Relation& r)
 	m_pDB->m_tkvNode.Prepare(m_pprimblock->m_stringtable,
 		r.m_keys,r.m_vals,&arInts);
 
-	CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
+	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 	//Таблица Way
 	{

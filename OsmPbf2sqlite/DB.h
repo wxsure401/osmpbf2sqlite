@@ -11,7 +11,7 @@ public:
 	void Init();
 	void Close();
 	CSQLite3DB m_db;
-	CComAutoCriticalSection m_cs;
+	boost::mutex m_cs;
 	CSQLite3Table m_tabNode;
 	CSQLite3Table m_tabNodeInfo;
 	//CSQLite3Table m_tabUser;

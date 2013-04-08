@@ -27,6 +27,6 @@ public:
 	CSet m_set;
 
 	void Save();
-	CComAutoCriticalSection m_cs;
+	boost::mutex m_cs;
 
 };

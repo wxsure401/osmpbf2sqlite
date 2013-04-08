@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "ThreadManager.h"
 
 
@@ -14,6 +14,7 @@ CThreadManager::CThreadManager(unsigned nThread)
 	for(unsigned i=0; i<nThread; ++i)
 	{
         m_arThreads[i]=new SThread;
+		 m_arThreads[i]->m_ptm=this;
 
 	    m_arHandle[i] =new boost::thread(boost::ref(*m_arThreads[i]));
 	    m_arThreads[i]->m_ThreadId=m_arHandle[i]->get_id();
@@ -110,7 +111,7 @@ CThreadManager::TaskId CThreadManager::BeginTaskComplex(
 	pThread->m_GrupId=gidMy;
 	pThread->m_pThreadManager=this;
 
-	CComCritSecLock<CComAutoCriticalSection> l(m_cs);
+	boost::lock_guard<boost::mutex> l(m_cs);
 	m_arTask[ta.m_taskId]=ta;
 	STask &t=GetTask(ta.m_taskId);
 
@@ -202,6 +203,7 @@ void CThreadManager::SThread::operator()()
 	//CThreadManager *ptm=(CThreadManager *)lpThreadParameter;
 	while (m_MessageQueue.GetMessage(&msg))
 	{
+		ASSERT(msg!=0);
 		switch(msg)
 		{
 		case TM_INIT:
@@ -214,7 +216,7 @@ void CThreadManager::SThread::operator()()
 			{
 				std::vector<TaskId> art;
 				{
-					CComCritSecLock<CComAutoCriticalSection> l(m_ptm->m_cs);
+					boost::lock_guard<boost::mutex> l(m_ptm->m_cs);
 					//ищем своюодную задачу
 					for(CTasks::iterator ti=m_ptm->m_arTask.begin();ti!=m_ptm->m_arTask.end();++ti)
 					{
@@ -252,7 +254,7 @@ void CThreadManager::SThread::operator()()
 				{
 					//Разбираемся с задачами
 
-					CComCritSecLock<CComAutoCriticalSection> l(m_ptm->m_cs);
+					boost::lock_guard<boost::mutex> l(m_ptm->m_cs);
 					STask &t=m_ptm->GetTask(*pMyTask);
 					t.m_etiState=etiReadyUnknown;
 					//Добавляем себя в ожидающие задачи
@@ -328,6 +330,9 @@ void CThreadManager::SThread::operator()()
 				}
 			}
 			break;
+			default: 
+				ASSERT(FALSE);
+
 		}
 
 	}
@@ -379,7 +384,7 @@ void CThreadManager::Wait(GrupId giW,int nCount)
 	if(nCount==0)
 	{
 		//ищем
-		CComCritSecLock<CComAutoCriticalSection> l(m_cs);
+		boost::lock_guard<boost::mutex> l(m_cs);
 		for(CTasks::iterator ti=m_arTask.begin();ti!=m_arTask.end();++ti)
 			if(ti->second.m_Grup==giW)
 				nCount+=ti->second.m_nCountCoin;
@@ -453,8 +458,9 @@ bool CThreadManager::SThread::CMessageQueue::PostThreadMessage(unsigned message)
                 m_nRead+=sz;
 
             }
-            m_nWrite=nNext;
             m_arMessage[m_nWrite]=message;
+			m_nWrite=nNext;
+	
 
         }
     }

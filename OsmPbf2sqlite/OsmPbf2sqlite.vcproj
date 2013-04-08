@@ -378,6 +378,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\OSMPBF\stdafx.h"
+					>
+				</File>
+				<File
 					RelativePath=".\OSMPBF\StringTable.h"
 					>
 				</File>
@@ -410,6 +414,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\PBFRO\stdafx.h"
+					>
+				</File>
+				<File
 					RelativePath=".\PBFRO\svector.h"
 					>
 				</File>
@@ -439,6 +447,10 @@
 				</File>
 				<File
 					RelativePath=".\DLIB\SQLite3Table.h"
+					>
+				</File>
+				<File
+					RelativePath=".\DLIB\stdafx.h"
 					>
 				</File>
 				<File

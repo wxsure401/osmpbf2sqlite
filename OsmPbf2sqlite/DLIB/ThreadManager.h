@@ -90,7 +90,7 @@ public:
 		{return m_arHandle.size();} // сколько потоков обрабатывают задачи в рамках этого объекьа
 
 private:
-	mutable CComAutoCriticalSection m_cs;
+	mutable boost::mutex m_cs;
 
 	struct STask
 	{
