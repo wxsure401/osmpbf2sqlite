@@ -4,9 +4,11 @@ SET(CMAKE_BUILD_TYPE Debug)
 set (PROJECT OsmPbf2sqlite)
 
 #set(BOOST_ROOT /home/di/e/boost_1_53_0)
+if (MSVC)
 set(BOOST_ROOT Z:/VS/boost_1_53_0)
 set(ZLIB_INCLUDE_DIR C:/Users/Di/Documents/OsmPbf/osmpbf2sqlite/Alien/zlib127/include)
 set(ZLIB_LIBRARY C:/Users/Di/Documents/OsmPbf/osmpbf2sqlite/Alien/zlib127/lib)
+endif()
 
 add_executable(${PROJECT} OsmPbf2sqlite.cpp CdbDictionary.cpp ConsoleOutput.cpp CtabKeyValue.cpp DB.cpp
 SqLite3MemAloc.cpp

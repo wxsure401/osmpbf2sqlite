@@ -55,6 +55,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	CDB m_db;
 	m_db.m_pSource=fn;
 	m_db.Init();
+	INTERLOCKED_SET(CThreadLoader::m_nCount,0);
 
 	{
 		boost::mutex m_csFile;
@@ -103,7 +104,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		}
 		*/
-		info("  Bloks=%d\n",CThreadLoader::m_nCount);
+		info("  Bloks=%d\n",INTERLOCKED_GET(CThreadLoader::m_nCount));
 
 	}
 

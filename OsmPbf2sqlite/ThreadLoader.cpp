@@ -4,7 +4,7 @@
 
 #include "ThreadLoader.h"
 
-volatile LONG CThreadLoader::m_nCount=0;
+ATOMIC_INT CThreadLoader::m_nCount;
 
 CThreadLoader::CThreadLoader(void)
 
@@ -321,7 +321,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 }
 
 		 //////////////////////////////////////////////////////////////////////////
-		 LONG l =INTERLOCKED_INCREMENT(&m_nCount);
+		 LONG l =INTERLOCKED_INCREMENT(m_nCount);
 		 if(m_nThredNumber==0)
 		 {
 			 unsigned u=GetTickCount();

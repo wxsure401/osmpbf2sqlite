@@ -19,7 +19,7 @@ public:
 	FILE *m_fp;
 	CDB* m_pDB;
 
-	volatile static  LONG m_nCount;
+	static ATOMIC_INT m_nCount;
 	int m_nThredNumber;
 	void AddNode(const OSMPBF::Node& n);
 	void AddDense(const OSMPBF::DenseNodes& d);

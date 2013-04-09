@@ -44,13 +44,18 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #ifdef WIN32
 	#include "../Alien/zlib127/include/zlib.h"
     #define __TLS __declspec(thread)
-    #define INTERLOCKED_INCREMENT(a) InterlockedIncrement(a)
+  	#define ATOMIC_INT volatile LONG
+  	#define INTERLOCKED_INCREMENT(a) InterlockedIncrement(&a)
+    #define INTERLOCKED_GET(a) (a)
+    #define INTERLOCKED_SET(a,b)  a=b
 	#define MIN min
 	#define MAX max
+
 #else
 	#include <zlib.h>
 	#include <netinet/in.h>
 	#include <stddef.h>
+	#include <boost/atomic.hpp>
     #define __int8 char
 	#define _int32 int
 	#define __int32 int
@@ -84,20 +89,27 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     {
         boost::xtime xt;
         boost::xtime_get(&xt, boost::TIME_UTC_);
-        return xt.nsec*10000000; // ms
+        return  (xt.sec % 60*60*24)*1000 + xt.nsec/1000000; // ms
     }
+
+    #define ATOMIC_INT boost::atomic<LONG>
 
     #ifndef z_const
         #define z_const
     #endif
 
+  	#define INTERLOCKED_INCREMENT(a)  a.fetch_add(1,  boost::memory_order_relaxed)
+    #define INTERLOCKED_GET(a) a.load(boost::memory_order_relaxed)
+    #define INTERLOCKED_SET(a,b)  a.store(b,boost::memory_order_relaxed)
+
+/*
     inline long int INTERLOCKED_INCREMENT(volatile long int *pa)
     {
         assert(false);
         return *pa+1;
 
     }
-
+*/
     /*
     template <class A>
     inline size_t _countof (const A a[])
