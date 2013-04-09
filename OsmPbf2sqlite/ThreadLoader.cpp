@@ -23,10 +23,13 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 	 {
 		 assert(false);
 	 }
-	 unsigned uTime=0;
+
+	 boost::timer::nanosecond_type const secunda(1000000000LL);
+	 boost::timer::cpu_timer uTimer;
+	 //unsigned uTime=0;
 	 if(m_nThredNumber==0)
 	 {
-		 uTime=GetTickCount()+1000;
+		 uTimer.start();
 
 	 }
 
@@ -324,11 +327,14 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 LONG l =INTERLOCKED_INCREMENT(m_nCount);
 		 if(m_nThredNumber==0)
 		 {
-			 unsigned u=GetTickCount();
-			 if(u> uTime)
+			 boost::timer::cpu_times const elapsed_times(uTimer.elapsed());
+		     boost::timer::nanosecond_type elapsed(elapsed_times.system
+				 + elapsed_times.user);
+			 if(elapsed >= secunda)
 			 {
 				 info("Bloks=%d",l);
-				 uTime=u+1000;
+				 //uTimer.stop();
+				 uTimer.start();
 			 }
 		 }
 	 }

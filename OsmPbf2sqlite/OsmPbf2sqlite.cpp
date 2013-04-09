@@ -28,7 +28,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
      argc=2;
 
-	CStopwatch sw;
+	//CStopwatch sw;
 	if(argc!=2 || fn[0]==L'-'
 #ifdef WIN32
         || fn[0]==L'/'
@@ -48,7 +48,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		return -1;
 	}
 
-	sw.Start();
+	boost::timer::auto_cpu_timer sw;
+	//sw.Start();
 	CSqLite3MemAloc ma;
 	ma.Init();
 
@@ -109,8 +110,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	ma.Close();
-	sw.Stop("All time=");
 	fclose(fp);
+	//sw.Stop("All time=");
+	sw.stop();
+	sw.report();
 	return 0;
 }
 

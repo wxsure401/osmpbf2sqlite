@@ -22,6 +22,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/xtime.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/timer/timer.hpp>
 
 /*#include <string>
 
@@ -85,13 +86,6 @@ inline bool operator< (const std::string &s1,const std::string &s2)
     {
         memset(pBuf,sz,0);
     }
-    inline unsigned GetTickCount()
-    {
-        boost::xtime xt;
-        boost::xtime_get(&xt, boost::TIME_UTC_);
-        return  (xt.sec % 60*60*24)*1000 + xt.nsec/1000000; // ms
-    }
-
     #define ATOMIC_INT boost::atomic<LONG>
 
     #ifndef z_const

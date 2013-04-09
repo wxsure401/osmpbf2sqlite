@@ -29,8 +29,6 @@ DLIB/SQLite3DB.cpp
 DLIB/SQLite3DB.h
 DLIB/SQLite3Table.cpp
 DLIB/SQLite3Table.h
-DLIB/Stopwatch.cpp
-DLIB/Stopwatch.h
 DLIB/TAllocatorAddOnly.h
 DLIB/ThreadManager.cpp
 DLIB/ThreadManager.h
