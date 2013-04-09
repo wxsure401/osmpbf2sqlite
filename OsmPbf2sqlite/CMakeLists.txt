@@ -66,7 +66,10 @@ PBFRO/TFuint.h
 set (BOOST_COMPONENTS
     system
 	thread
-	filesystem)
+	filesystem
+	timer
+	chrono
+	)
 
 set (Boost_USE_STATIC_LIBS ON)
 
