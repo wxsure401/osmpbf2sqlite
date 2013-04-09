@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "DLIB/SQLite3Table.h"
-#include "DLIB/Stopwatch.h"
 
 #include "ThreadLoader.h"
 

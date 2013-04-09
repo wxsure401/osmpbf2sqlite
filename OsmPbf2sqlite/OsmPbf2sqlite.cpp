@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "OSMPBF/osmpbf.h"
-#include "DLIB/Stopwatch.h"
 #include "DLIB/ThreadManager.h"
 #include "ThreadLoader.h"
 #include "SqLite3MemAloc.h"
@@ -25,8 +24,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 #else
     fn="/home/di/Загрузки/RU-MOW.osm.pbf";
+	argc=2;
 #endif
-     argc=2;
 
 	//CStopwatch sw;
 	if(argc!=2 || fn[0]==L'-'
