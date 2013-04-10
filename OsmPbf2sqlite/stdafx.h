@@ -40,7 +40,18 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #include <algorithm>
 
 #define ZLIB_CONST 1
-#include "../Alien/sqlite3/sqlite3.h"
+
+//#include "../Alien/sqlite3/sqlite3.h"
+#include <sqlite3.h>
+
+
+
+#ifdef _DEBUG
+#define ASSERT(a) assert(a)
+#else
+#define ASSERT(a)
+#endif //
+
 
 #ifdef WIN32
 	#include "../Alien/zlib127/include/zlib.h"
@@ -84,7 +95,12 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 
     inline void ZeroMemory(void* pBuf,size_t sz)
     {
-        memset(pBuf,sz,0);
+
+        ASSERT(sz%4=0);
+        int nC=sz/4;
+        std::fill((int*)pBuf,((int*)pBuf+nC),0);
+//        memset(pBuf,sz,0);
+      //  assert(*(int*)pBuf==0);
     }
     #define ATOMIC_INT boost::atomic<LONG>
 
@@ -118,12 +134,6 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 	//typedef int __int32
 #endif
 
-#ifdef _DEBUG
-#define ASSERT(a) assert(a)
-#else
-#define ASSERT(a)
-
-#endif //
 
 #include "ConsoleOutput.h"
 
