@@ -4,7 +4,7 @@
 CDB::CDB(void)
 {
 //#ifdef DEBUG
- //info(sqlite3_libversion());
+info(sqlite3_libversion());
 //#endif
 }
 
@@ -17,17 +17,23 @@ void CDB::Init()
  boost::filesystem::remove(GetFileNameOut().c_str());
 	//::DeleteFileW(GetFileNameOut().c_str());
 	 int hr=m_db.Open(  GetFileNameOut().c_str(),  /*SQLITE_OPEN_FULLMUTEX|*/SQLITE_OPEN_NOMUTEX|SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE  );
+	 int nRet;
 	 if(hr!=SQLITE_OK)
 		err(m_db.errmsg());
-	 m_db.Execute("BEGIN  EXLUSIVE TRANSACTION;");
+	 nRet=m_db.Execute("PRAGMA synchronous=OFF;");
+	 if(nRet)
+		 info(m_db.errmsg());
+	 nRet=m_db.Execute("PRAGMA count_changes=OFF;");
+	 if(nRet)
+		 info(m_db.errmsg());
+	 nRet=m_db.Execute("BEGIN TRANSACTION;");
 	 CreateTables();
 
-	 m_db.Execute("PRAGMA synchronous=OFF;");
-	 m_db.Execute("PRAGMA count_changes=OFF;");
 	 //sqlite_changes()
 	// m_db.Execute("END TRANSACTION;");
 
-	// m_db.Execute("BEGIN EXLUSIVE TRANSACTION;");
+	 //m_db.Execute("BEGIN EXLUSIVE TRANSACTION;");
+	// m_db.Execute("BEGIN TRANSACTION;");
 	 PrepareTables();
 
 
