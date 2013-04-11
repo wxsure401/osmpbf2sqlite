@@ -1,5 +1,5 @@
 # cotire OsmPbf2sqlite project
-SET(CMAKE_BUILD_TYPE Debug)
+SET(CMAKE_BUILD_TYPE Releace)
 
 set (PROJECT OsmPbf2sqlite)
 
@@ -84,8 +84,9 @@ target_link_libraries (${PROJECT} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-	set_target_properties(${PROJECT} PROPERTIES COMPILE_FLAGS "-Wall")
+	set_target_properties(${PROJECT} PROPERTIES COMPILE_FLAGS "-Wall -pg")
 endif()
+set_target_properties(${PROJECT} PROPERTIES COMPILE_FLAGS "-pg")
 
 cotire(${PROJECT})
 
