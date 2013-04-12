@@ -133,16 +133,92 @@ size_t CSqLite3MemAloc::SHips::Size(void* p)
 
 CSqLite3MemAloc::SHip* CSqLite3MemAloc::SHips::GetHip(int n)
 {
-	int pos=0;
+	//int pos=0;
+	/*
+	static const int p[13]=
+	{
+	    64-sizeof(SShunk),
+	    (64<<1)-sizeof(SShunk),
 
-	for(;int((64<<pos)-sizeof(SShunk)) < n;++pos);
+	}
+	*/
 
-	ASSERT(pos < _countof(m_hip));
+	//for(;int((64<<pos)-sizeof(SShunk)) < n;++pos);
+	int z;
 
-	if(m_hip[pos]==NULL)
-		m_hip[pos]=new SHip(64<<pos);
+	if(int((64<<7)-sizeof(SShunk)) >=n)
+	{
 
-	return m_hip[pos];
+        if(int((64<<3)-sizeof(SShunk)) >= n)
+        {
+                if(int((64<<1)-sizeof(SShunk)) >= n)
+                { //0 ,1
+                    z=int(64-sizeof(SShunk)) < n;
+
+                }
+                else
+                { //2 3
+                    z= 2 + (int((64<<2)-sizeof(SShunk)) < n);
+
+                }
+
+        }
+        else
+        {// 4 5 6 7
+
+                if(int((64<<5)-sizeof(SShunk)) >= n)
+                { //4 5
+                    z=4+(int((64<<4)-sizeof(SShunk)) < n);
+
+                }
+                else
+                { //6 7
+                    z= 6 + (int((64<<6)-sizeof(SShunk)) < n);
+
+                }
+        }
+	}
+	else
+	{
+        if(int((64<<11)-sizeof(SShunk)) >= n)
+        {//8 9 10 11
+                if(int((64<<9)-sizeof(SShunk)) >= n)
+                { //8 9
+                    z=8 + (int((64<<8)-sizeof(SShunk)) < n);
+
+                }
+                else
+                { //10 11
+                    z= 10 + (int((64<<10)-sizeof(SShunk)) < n);
+
+                }
+
+        }
+        else
+        {// 12 13
+
+                if(int((64<<13)-sizeof(SShunk)) >= n)
+                { //12 13
+                    z=12+(int((64<<12)-sizeof(SShunk)) < n);
+
+                }
+                else
+                { //14 ...
+                    ASSERT(false);
+
+                }
+        }
+
+	}
+	//ASSERT(z == pos);
+
+	//ASSERT(pos < _countof(m_hip));
+	//pos=z;
+
+	if(m_hip[z]==NULL)
+		m_hip[z]=new SHip(64<<z);
+
+	return m_hip[z];
 
 }
 ////////////////////////////////////////
