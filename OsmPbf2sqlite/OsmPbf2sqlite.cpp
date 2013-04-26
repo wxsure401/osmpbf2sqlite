@@ -28,8 +28,8 @@ int _tmain(int argc, _TCHAR* argv[])
 #ifdef WIN32
 
 #else
-    fn="/home/di/Загрузки/RU-MOW.osm.pbf";
-	argc=2;
+    //fn="/home/di/Загрузки/RU-MOW.osm.pbf";
+	//argc=2;
 #endif
 
 	//CStopwatch sw;
