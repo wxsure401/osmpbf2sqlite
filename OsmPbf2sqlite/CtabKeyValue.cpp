@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CtabKeyValue.h"
+#include "DB.h"
 
 CtabKeyValue::CtabKeyValue(void)
 {
@@ -8,11 +9,15 @@ CtabKeyValue::CtabKeyValue(void)
 CtabKeyValue::~CtabKeyValue(void)
 {
 }
-void CtabKeyValue::Init(CSQLite3DB* pdb,const char*sName)
+void CtabKeyValue::Init(CDB* _pdb,const char*sName)
 {
+
+	CSQLite3DB* pdb=&_pdb->m_db;
+
 	m_tabKeyVal.m_pDB=
 	m_Key.m_tab.m_pDB=
 	m_Val.m_tab.m_pDB=pdb;
+
 	int ret;
 	char s[MAX_PATH];
 	sprintf(s,
@@ -63,6 +68,8 @@ void CtabKeyValue::Init(CSQLite3DB* pdb,const char*sName)
 	ret=m_Val.m_tab.prepare(s,-1);
 	if(ret!=SQLITE_OK)
 		err(pdb->errmsg());
+
+  // m_KV_cash.Init(&m_tabKeyVal,&_pdb->m_cs);
 }
 
 void CtabKeyValue::Add(__int64 id,const PBFRO::FBytes* sKey, const PBFRO::FBytes* sValue)
@@ -93,6 +100,7 @@ void  CtabKeyValue::SaveText()
 {
 	m_Key.Save();
 	m_Val.Save();
+	//m_KV_cash.Save();
 }
 
 void CtabKeyValue::SDic::Save()
@@ -119,14 +127,15 @@ void CtabKeyValue::Prepare(const OSMPBF::StringTable& arS,const OSMPBF::CarTaxts
 	 }
 }
 
-void CtabKeyValue::SaveId(__int64 id,const SarInts &ar)
+void CtabKeyValue::SaveId(__int64 id,const SarInts &ar,CKV_cash * pCash)
 {
+
 	 for(unsigned i=0;i< ar.size(); ++i)
 	 {
-		m_tabKeyVal.reset();
-		m_tabKeyVal.bind_int64(1,id);
-		m_tabKeyVal.bind_int(2,ar[i].nk);
-		m_tabKeyVal.bind_int(3,ar[i].nv);
-		m_tabKeyVal.step();
-	 }
+	     STabKeyVal_Cash &t= pCash->Prepare();
+	     t.m_n1=id;
+	     t.m_n2=ar[i].nk;
+	     t.m_n3=ar[i].nv;
+	     pCash->Update();
+	  }
 }

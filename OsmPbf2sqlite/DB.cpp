@@ -141,9 +141,9 @@ void  CDB::CreateTables()
 	if(ret!=SQLITE_OK)
 		err(m_db.errmsg());
 
-	m_tkvNode.Init(&m_db,"Node");
-	m_tkvWay.Init(&m_db,"Way");
-	m_tkvRelation.Init(&m_db,"Relation");
+	m_tkvNode.Init(this,"Node");
+	m_tkvWay.Init(this,"Way");
+	m_tkvRelation.Init(this,"Relation");
 
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS Way ( "
 		"id   INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,"

@@ -9,6 +9,11 @@
 
 // should the output use color?
 
+#ifdef _UNICODE
+    #ifndef _T
+        #define _T(a) L##a
+    #endif
+#endif
 
 // buffer for reading a compressed blob from file
 //char buffer[OSMPBF::max_uncompressed_blob_size];
@@ -59,15 +64,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	{
 		boost::mutex m_csFile;
-		std::vector<CThreadLoader> ar(2);
+		CThreadManager m_tm;
+		std::vector<CThreadLoader> ar(m_tm.GetCountThread());
 
-			CThreadManager m_tm(ar.size());
+
 			for(unsigned i=0;i<ar.size();++i)
 			{
-				ar[i].m_pcs=&m_csFile;
-				ar[i].m_fp=fp;
-				ar[i].m_nThredNumber=i;
-				ar[i].m_pDB=&m_db;
+				ar[i].Init(i,fp,&m_db);
 				m_tm.BeginTaskG(&ar[i],1,0,0);
 			}
 			/*

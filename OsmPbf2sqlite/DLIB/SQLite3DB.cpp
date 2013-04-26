@@ -2,7 +2,6 @@
 #include "SQLite3DB.h"
 #include "MyString.h"
 
-
 CSQLite3DB::CSQLite3DB(void)
 	: m_pdb(NULL)
 {

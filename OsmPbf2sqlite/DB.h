@@ -2,6 +2,8 @@
 #include "DLIB/SQLite3Table.h"
 #include "CtabKeyValue.h"
 #include "CdbDictionary.h"
+
+
 class CDB
 {
 public:
@@ -12,6 +14,7 @@ public:
 	void Close();
 	CSQLite3DB m_db;
 	boost::mutex m_cs;
+
 	CSQLite3Table m_tabNode;
 	CSQLite3Table m_tabNodeInfo;
 	//CSQLite3Table m_tabUser;

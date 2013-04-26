@@ -6,6 +6,11 @@
 ATOMIC_INT CThreadLoader::m_nCount;
 
 CThreadLoader::CThreadLoader(void)
+:m_pcs(NULL)
+,m_fp(NULL)
+,m_pDB(NULL)
+,m_pprimblock(NULL)
+,m_nThredNumber(-1)
 
 {
 
@@ -15,8 +20,42 @@ CThreadLoader::~CThreadLoader(void)
 {
 	//::DeleteFile(GetFileNameOut().c_str());
 }
+void CThreadLoader::Init(int nThredNumber,FILE *fp,CDB* pDB)
+{
+    m_pcs=&pDB->m_cs;
+    m_fp=fp;
+    m_pDB=pDB;
+    m_nThredNumber=nThredNumber;
+
+    m_tabNode_Cash.Init(&m_pDB->m_tabNode,&m_pDB->m_cs);
+    m_tabNode_NotVisible_Cash.Init(&m_pDB->m_tabNode_NotVisible,&m_pDB->m_cs);
+
+    m_tabNI_Cash.Init(&m_pDB->m_tabNodeInfo,&m_pDB->m_cs);
+    m_tabNI_NotVisible_Cash.Init(&m_pDB->m_tabNodeInfo_NotVisible,&m_pDB->m_cs);
+
+    m_tabWI_Cash.Init(&m_pDB->m_tabWayInfo,&m_pDB->m_cs);
+    m_tabWI_NotVisible_Cash.Init(&m_pDB->m_tabWayInfo_NotVisible,&m_pDB->m_cs);
+
+    m_tabRI_Cash.Init(&m_pDB->m_tabRelationInfo,&m_pDB->m_cs);
+    m_tabRI_NotVisible_Cash.Init(&m_pDB->m_tabRelationInfo_NotVisible,&m_pDB->m_cs);
+
+	m_tabWay_Cash.Init(&m_pDB->m_tabWay,&m_pDB->m_cs);;
+	m_tabWay_NotVisible_Cash.Init(&m_pDB->m_tabWay_NotVisible,&m_pDB->m_cs);;
+
+	m_tabRelation_Cash.Init(&m_pDB->m_tabRelation,&m_pDB->m_cs);;
+	m_tabRelation_NotVisible_Cash.Init(&m_pDB->m_tabRelation_NotVisible,&m_pDB->m_cs);;
+
+	m_tabkvNode_cash.Init(&m_pDB->m_tkvNode.m_tabKeyVal,&m_pDB->m_cs);
+	m_tabkvWay_cash.Init(&m_pDB->m_tkvWay.m_tabKeyVal,&m_pDB->m_cs);
+	m_tabkvRelation_cash.Init(&m_pDB->m_tkvRelation.m_tabKeyVal,&m_pDB->m_cs);
+
+
+
+}
+
 void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 {
+    m_pprimblock=new OSMPBF::PrimitiveBlock;
 
 	 if(m_nCount >0)
 	 {
@@ -33,7 +72,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 	 }
 
 
-	m_pprimblock=new OSMPBF::PrimitiveBlock;
+
 
 	 std::vector<char> buffer_blob_header;
 	 std::vector<char>  buffer(OSMPBF::max_uncompressed_blob_size);
@@ -41,6 +80,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 
 	 const char* pbWork;
 
+	 //for(int l=0;l<20;++l)
 	 for(;;)
 	 {
 		 // storage of size, used multiple times
@@ -337,7 +377,22 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 }
 		 }
 	 }
-	//sqlite3_close(pDb);
+
+    m_tabNode_Cash.Save();
+    m_tabNode_NotVisible_Cash.Save();
+
+    m_tabNI_Cash.Save();
+    m_tabNI_NotVisible_Cash.Save();
+
+    m_tabWI_Cash.Save();
+    m_tabWI_NotVisible_Cash.Save();
+
+    m_tabRI_Cash.Save();
+    m_tabRI_NotVisible_Cash.Save();
+
+    m_tabkvNode_cash.Save();
+	m_tabkvWay_cash.Save();
+	m_tabkvRelation_cash.Save();
 
 	 delete m_pprimblock;
 	 m_pprimblock=NULL;
@@ -350,17 +405,19 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 {
 
 
-	int ret;
-	CSQLite3Table *pTabN, *pTabNI;
+
+	//int ret;
+	CTabNodeInfo_Cash *pTabNI;
+	CTabNode_Cash *pTabN;
 	if(n.m_info.m_visible.m_val)
 	{
-		pTabN=&m_pDB->m_tabNode;
-		pTabNI=&m_pDB->m_tabNodeInfo;
+		pTabN=&m_tabNode_Cash;
+		pTabNI=&m_tabNI_Cash;
 	}
 	else
 	{
-		pTabN=&m_pDB->m_tabNode_NotVisible;
-		pTabNI=&m_pDB->m_tabNodeInfo_NotVisible;
+		pTabN=&m_tabNode_Cash;
+		pTabNI=&m_tabNI_NotVisible_Cash;
 	}
 
 	CtabKeyValue::SarInts arInts;
@@ -370,60 +427,36 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 	const PBFRO::FBytes &s=m_pprimblock->m_stringtable.m_s[n.m_info.m_user_sid.m_val];
 	int nUser=m_pDB->m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
 
-	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
+//	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 
 	//Таблица Node
 	{
     	// CComCritSecLock<CComAutoCriticalSection> l(pTabN->m_cs);
-		ret = pTabN->reset();
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-		ret = pTabN->bind_int64(1,n.m_id.m_val);
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-		pTabN->bind_int64(2,n.m_lat.m_val);
-		pTabN->bind_int64(3,n.m_lon.m_val);
-		ret = pTabN->step();
-		if(ret!= SQLITE_DONE)
-			err(m_pDB->m_db.errmsg());
-	}
-
-	//Таблица NodeInfo
-	{
-    	//CComCritSecLock<CComAutoCriticalSection> l(pTabNI->m_cs);
-		ret = pTabNI->reset();
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-		ret = pTabNI->bind_int64(1,n.m_id.m_val);
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-
-
-		pTabNI->bind_int64(2,n.m_info.m_timestamp.m_val);
-
-
-		pTabNI->bind_int(3,nUser);
-		pTabNI->bind_int64(4,n.m_info.m_changeset.m_val);
-		ret = pTabNI->step();
+    	STabNode_Cash &t=pTabN->Prepare();
+    	t.m_n1=n.m_id.m_val;
+    	t.m_n2=n.m_lat.m_val;
+    	t.m_n3=n.m_lon.m_val;
+    	pTabN->Update();
 
 	}
-
-	//m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
-	if(ret!= SQLITE_DONE)
-		err(m_pDB->m_db.errmsg());
-
-	m_pDB->m_tkvNode.SaveId(n.m_id.m_val,arInts);
-	/*
 
 	{
-    	//CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_tkvNode.m_tabKeyVal.m_cs);
-		for(unsigned i=0;i<n.m_keys.size();++i)
-		{
-			m_pDB->m_tkvNode.Add(n.m_id.m_val,&m_pprimblock->m_stringtable.m_s[n.m_keys[i].m_val],&m_pprimblock->m_stringtable.m_s[n.m_vals[i].m_val]);
-		}
+	    STabNodeInfo_Cash &t=pTabNI->Prepare();
+	    t.m_n1=n.m_id.m_val;
+	    t.m_n2=n.m_info.m_timestamp.m_val;
+	    t.m_n3=nUser;
+	    t.m_n4=n.m_info.m_changeset.m_val;
+ 	    pTabNI->Update();
+
+
 	}
-	*/
+//return;
+    //info("2=%X %d\n",&m_pDB->m_cs,m_nThredNumber);
+	//boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
+
+	m_pDB->m_tkvNode.SaveId(n.m_id.m_val,arInts,&m_tabkvNode_cash);
+
 
 
 }
@@ -488,40 +521,52 @@ void CThreadLoader::AddDense(const OSMPBF::DenseNodes& d)
 }
 void CThreadLoader::AddWay(const OSMPBF::Way& w)
 {
+
 	const PBFRO::FBytes &s=m_pprimblock->m_stringtable.m_s[w.m_info.m_user_sid.m_val];
 	int nUser=m_pDB->m_dicUser.GetID(w.m_info.m_uid.m_val, s.m_pBegin,s.size());
 
-	int ret;
-	CSQLite3Table *pTabW, *pTabWI;
+	//int ret;
+	CTabWay_Cash *pTabW;
+	CTabNodeInfo_Cash *pTabWI;
 	if(w.m_info.m_visible.m_val)
 	{
-		pTabW=&m_pDB->m_tabWay;
-		pTabWI=&m_pDB->m_tabWayInfo;
+		pTabW=&m_tabWay_Cash;
+		pTabWI=&m_tabWI_Cash;
 	}
 	else
 	{
-		pTabW=&m_pDB->m_tabWay_NotVisible;
-		pTabWI=&m_pDB->m_tabWayInfo_NotVisible;
+		pTabW=&m_tabWay_NotVisible_Cash;
+		pTabWI=&m_tabWI_NotVisible_Cash;
 	}
 
 	CtabKeyValue::SarInts arInts;
-	m_pDB->m_tkvNode.Prepare(m_pprimblock->m_stringtable,
+	m_pDB->m_tkvWay.Prepare(m_pprimblock->m_stringtable,
 		w.m_keys,w.m_vals,&arInts);
 
-	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 	//Таблица Way
 	{
-		//CComCritSecLock<CComAutoCriticalSection> l(pTabW->m_cs);
+		//boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
+	//CComCritSecLock<CComAutoCriticalSection> l(pTabW->m_cs);
 		__int64 idw=0;
 		for(unsigned i=0;i<w.m_refs.size();++i)
 		{
+		   STabWay_Cash &t=pTabW->Prepare();
+		   t.m_n1=w.m_id.m_val;
+           idw+=w.m_refs[i].m_val;
+		   t.m_n2=idw;
+		   t.m_n3=i;
+            pTabW->Update();
+
+
+		    /*
 			ret = pTabW->reset();
 			ret = pTabW->bind_int64(1,w.m_id.m_val);
 			idw+=w.m_refs[i].m_val;
 			pTabW->bind_int64(2,idw);
 			pTabW->bind_int(3,i);
 			ret = pTabW->step();
+			*/
 		}
 	}
 
@@ -531,24 +576,20 @@ void CThreadLoader::AddWay(const OSMPBF::Way& w)
 
 	{
 		//CComCritSecLock<CComAutoCriticalSection> l(pTabWI->m_cs);
-		ret = pTabWI->reset();
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-		ret = pTabWI->bind_int64(1,w.m_id.m_val);
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-		pTabWI->bind_int64(2,w.m_info.m_timestamp.m_val);
-		pTabWI->bind_int(3,nUser);
-		pTabWI->bind_int64(4,w.m_info.m_changeset.m_val);
-		ret = pTabWI->step();
+		STabNodeInfo_Cash &t=pTabWI->Prepare();
+		t.m_n1=w.m_id.m_val;
+		t.m_n2=w.m_info.m_timestamp.m_val;
+		t.m_n3=nUser;
+		t.m_n4=w.m_info.m_changeset.m_val;
+		pTabWI->Update();
 	}
 
 
 	//m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
-	if(ret!= SQLITE_DONE)
-		err(m_pDB->m_db.errmsg());
+	//if(ret!= SQLITE_DONE)
+	//	err(m_pDB->m_db.errmsg());
 
-	m_pDB->m_tkvWay.SaveId(w.m_id.m_val,arInts);
+	m_pDB->m_tkvWay.SaveId(w.m_id.m_val,arInts,&m_tabkvWay_cash);
 /*
 	{
 		//CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_tkvWay.m_tabKeyVal.m_cs);
@@ -565,31 +606,40 @@ void CThreadLoader::AddRelations(const OSMPBF::Relation& r)
 	const PBFRO::FBytes &s=m_pprimblock->m_stringtable.m_s[r.m_info.m_user_sid.m_val];
 	int UserId=m_pDB->m_dicUser.GetID(r.m_info.m_uid.m_val, s.m_pBegin,s.size());
 
-	int ret;
-	CSQLite3Table *pTabR, *pTabRI;
+	//int ret;
+	CTabRelation_Cash *pTabR;
+	CTabNodeInfo_Cash  *pTabRI;
 	if(r.m_info.m_visible.m_val)
 	{
-		pTabR=&m_pDB->m_tabRelation;
-		pTabRI=&m_pDB->m_tabRelationInfo;
+		pTabR=&m_tabRelation_Cash;
+		pTabRI=&m_tabRI_Cash ;
 	}
 	else
 	{
-		pTabR=&m_pDB->m_tabRelation_NotVisible;
-		pTabRI=&m_pDB->m_tabRelationInfo_NotVisible;
+		pTabR=&m_tabRelation_NotVisible_Cash;
+		pTabRI=&m_tabRI_NotVisible_Cash;
 	}
 
 	CtabKeyValue::SarInts arInts;
-	m_pDB->m_tkvNode.Prepare(m_pprimblock->m_stringtable,
+	m_pDB->m_tkvRelation.Prepare(m_pprimblock->m_stringtable,
 		r.m_keys,r.m_vals,&arInts);
 
-	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 	//Таблица Way
 	{
-		//CComCritSecLock<CComAutoCriticalSection> l(pTabR->m_cs);
+	//boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 		__int64 idw=0;
 		for(unsigned i=0;i<r.m_memids.size();++i)
 		{
+		    STabRelation_Cash &t=  pTabR->Prepare();
+		    t.m_n1=r.m_id.m_val;
+			idw+=r.m_memids[i].m_val;
+		    t.m_n2=idw;
+		    t.m_n3=r.m_types_N[i].m_val;
+		    t.m_n4=m_pDB->m_dicRelationRole.GetIdText(&m_pprimblock->m_stringtable.m_s[r.m_roles_sid[i].m_val]);
+			pTabR->Update();
+
+		    /*
 			pTabR->reset();
 			pTabR->bind_int64(1,r.m_id.m_val);
 			idw+=r.m_memids[i].m_val;
@@ -597,6 +647,7 @@ void CThreadLoader::AddRelations(const OSMPBF::Relation& r)
 			pTabR->bind_int(3,r.m_types_N[i].m_val);
 			pTabR->bind_int(4,m_pDB->m_dicRelationRole.GetIdText(&m_pprimblock->m_stringtable.m_s[r.m_roles_sid[i].m_val]));
 			pTabR->step();
+			*/
 		}
 	}
 
@@ -605,43 +656,21 @@ void CThreadLoader::AddRelations(const OSMPBF::Relation& r)
 	//Таблица NodeInfo
 	{
 		//CComCritSecLock<CComAutoCriticalSection> l(pTabRI->m_cs);
-
-		ret = pTabRI->reset();
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-		ret = pTabRI->bind_int64(1,r.m_id.m_val);
-		if(ret!=SQLITE_OK)
-			err(m_pDB->m_db.errmsg());
-
-
-		pTabRI->bind_int64(2,r.m_info.m_timestamp.m_val);
-
-
-		pTabRI->bind_int(3,UserId);
-		pTabRI->bind_int64(4,r.m_info.m_changeset.m_val);
-
-
-
-		ret = pTabRI->step();
+		STabNodeInfo_Cash &t=pTabRI->Prepare();
+		t.m_n1=r.m_id.m_val;
+		t.m_n2=r.m_info.m_timestamp.m_val;
+		t.m_n3=UserId;
+		t.m_n4=r.m_info.m_changeset.m_val;
+		pTabRI->Update();
 	}
 
 
 	//m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
-	if(ret!= SQLITE_DONE)
-		err(m_pDB->m_db.errmsg());
+//	if(ret!= SQLITE_DONE)
+	//	err(m_pDB->m_db.errmsg());
 
 
-	m_pDB->m_tkvRelation.SaveId(r.m_id.m_val,arInts);
-/*
-	{
-		//CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_tkvRelation.m_tabKeyVal.m_cs);
+	m_pDB->m_tkvRelation.SaveId(r.m_id.m_val,arInts,&m_tabkvRelation_cash);
 
-		for(unsigned i=0;i<r.m_keys.size();++i)
-		{
-			m_pDB->m_tkvRelation.Add(r.m_id.m_val,&m_pprimblock->m_stringtable.m_s[r.m_keys[i].m_val],
-				&m_pprimblock->m_stringtable.m_s[r.m_vals[i].m_val]);
-		}
-	}
-	*/
 
 }
