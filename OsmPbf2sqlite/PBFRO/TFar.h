@@ -39,7 +39,7 @@ public:
 		{
 			T f;
 			f.Init(pis);
-			push_back(f);
+			this->push_back(f);
 		}
 		return (*this)[this->size()-1].Read(pis);
 	}

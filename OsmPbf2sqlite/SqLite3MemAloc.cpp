@@ -30,9 +30,9 @@ void CSqLite3MemAloc::Init()
 	m_Mem.xShutdown=Shutdown;
 	m_Mem.pAppData=m_OldMem.pAppData;
 
-#ifndef _DEBUG  //В дебаге обычный менеджер памяти в релизе потоко независимый
+//#ifndef _DEBUG  //В дебаге обычный менеджер памяти в релизе потоко независимый
 	sqlite3_config(SQLITE_CONFIG_MALLOC, &m_Mem);
-#endif
+//#endif
 }
 void CSqLite3MemAloc::Close()
 {

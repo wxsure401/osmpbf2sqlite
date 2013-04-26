@@ -40,7 +40,7 @@ CMyString::~CMyString(void)
 {
 	if(pws==NULL || str==NULL)
 		return;
-	if(size_str==-1)
+	if(size_str==(unsigned)-1)
 		size_str=strlen(str);
 
 	int ns=MultiByteToWideChar(uCodePage,0,str,size_str,NULL,0);
