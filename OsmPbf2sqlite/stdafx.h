@@ -63,9 +63,13 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 #define ASSERT(a)
 #endif //
 
+#include <zlib.h>
+#ifndef z_const
+	#define z_const
+#endif
 
 #ifdef WIN32
-	#include "../osmpbf2sqlite/Alien/zlib127/include/zlib.h"
+
   	#define ATOMIC_INT volatile LONG
   	#define INTERLOCKED_INCREMENT(a) InterlockedIncrement(&a)
     #define INTERLOCKED_GET(a) (a)
@@ -77,7 +81,6 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 
 #else
 //piouepvg
-	#include <zlib.h>
 	#include <netinet/in.h>
 	#include <stddef.h>
 	#include <boost/atomic.hpp>
