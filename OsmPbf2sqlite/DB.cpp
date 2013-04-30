@@ -83,8 +83,6 @@ boost::filesystem::path CDB::GetFileNameOut()const
 	boost::filesystem::path sOut;
 	sOut.assign(m_pSource,_tcsrchr(  m_pSource,_T('.')));
 	sOut+=".db3";
-
-
 	return sOut;
 }
 
