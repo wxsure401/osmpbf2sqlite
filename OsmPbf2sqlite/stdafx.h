@@ -89,7 +89,7 @@ inline bool operator< (const std::string &s1,const std::string &s2)
 	#define _T(a) a
     #define MAX_PATH 512
     #define _tcsrchr strrchr
-	#define _TCHAR const char
+	#define _TCHAR char
 	#define _tfopen fopen
     #define WM_QUIT 10
     #define WM_USER 100
