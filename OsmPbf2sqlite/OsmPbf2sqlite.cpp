@@ -24,7 +24,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//setlocale( LC_ALL, "English" );
 
 
-	_TCHAR* fn= argc==2  ? argv[1] : NULL;
+	const _TCHAR* fn= argc==2  ? argv[1] : NULL;
 #ifdef WIN32
 
 #else
