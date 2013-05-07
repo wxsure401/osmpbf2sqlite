@@ -20,7 +20,7 @@ public:
 
 	virtual void Start(CThreadUnit** pTasks, int countTasks);
 
-	boost::mutex* m_pcs;
+	boost::mutex* m_pcsFile;
 	FILE *m_fp;
 	CDB* m_pDB;
 	OSMPBF::PrimitiveBlock* m_pprimblock;
