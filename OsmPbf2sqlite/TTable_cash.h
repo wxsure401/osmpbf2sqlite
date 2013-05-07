@@ -41,6 +41,7 @@ public:
             return;
 
         {
+			//std::sort(m_ar.begin(),m_ar.end());
             boost::lock_guard<boost::mutex> l(*m_pcs);
             for(unsigned i=0;i<m_nAdd;++i)
             {
