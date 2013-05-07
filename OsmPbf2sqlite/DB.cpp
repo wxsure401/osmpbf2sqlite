@@ -29,11 +29,7 @@ void CDB::Init()
 	 nRet=m_db.Execute("BEGIN TRANSACTION;");
 	 CreateTables();
 
-	 //sqlite_changes()
-	// m_db.Execute("END TRANSACTION;");
 
-	 //m_db.Execute("BEGIN EXLUSIVE TRANSACTION;");
-	// m_db.Execute("BEGIN TRANSACTION;");
 	 PrepareTables();
 
 
@@ -47,7 +43,7 @@ void CDB::Close()
 	 m_tkvRelation.SaveText();
 	 m_dicRelationRole.Save();
 	 m_tabNode.Close();
-	 m_db.Execute("END TRANSACTION;");
+
 
 
 	 m_tabNode.Close();
@@ -74,6 +70,7 @@ void CDB::Close()
 	m_tkvWay.Close();
 	m_tkvRelation.Close();
 
+	 m_db.Execute("END TRANSACTION;");
 
 	 m_db.Close();
 
@@ -97,7 +94,8 @@ void  CDB::CreateTables()
 		err(m_db.errmsg());
 */
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS Node ( "
-    "id   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+	"id   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+    //"id   INTEGER NOT NULL,"
     "lat  INTEGER NOT NULL,"
     "lon  INTEGER NOT NULL "
 	");");

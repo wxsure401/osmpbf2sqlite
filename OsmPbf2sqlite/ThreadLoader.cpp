@@ -259,8 +259,8 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 				 if(pg.m_nodes.size() > 0)
 				 {
 					 found_items = true;
-			//		 for(size_t i=0;i<pg.m_nodes.size();++i)
-			//			AddNode(pg.m_nodes[i]);
+					 for(size_t i=0;i<pg.m_nodes.size();++i)
+						AddNode(pg.m_nodes[i]);
 
 
 				 }
@@ -275,15 +275,9 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 				 // tell about ways
 				 if(pg.m_ways.size() > 0) {
 					 found_items = true;
- 					 //CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
+//					 for(size_t i=0;i<pg.m_ways.size();++i)
+//						AddWay(pg.m_ways[i]);
 
-					 for(size_t i=0;i<pg.m_ways.size();++i)
-						AddWay(pg.m_ways[i]);
-/*
-					 debug("      ways: %d", pg.m_ways.size());
-					 if(!pg.m_ways[0].m_info.empty())
-						 debug("        with meta-info");
-						 */
 				 }
 
 				 // tell about relations
@@ -374,6 +368,7 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 //	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 
 
+
 	//Таблица Node
 	{
     	// CComCritSecLock<CComAutoCriticalSection> l(pTabN->m_cs);
@@ -384,6 +379,7 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
     	pTabN->Update();
 
 	}
+	return;
 
 	{
 	    STabNodeInfo_Cash &t=pTabNI->Prepare();

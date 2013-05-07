@@ -74,40 +74,16 @@ int _tmain(int argc, _TCHAR* argv[])
 				ar[i].Init(i,fp,&m_db);
 				m_tm.BeginTaskG(&ar[i],1,0,0);
 			}
-			/*
-			{
-				CThreadConnect tcTest;
-				CThreadUnit* m[2];
-				m[0]=&ar[0];
-				m[1]=&ar[1];
-				tcTest.Start(m,2);
-				err("stop");
-			}
-			*/
+	
 
-/*
-		if(ar.size()==4)
-		{
-			CThreadConnect tc1;
-			m_tm.BeginTaskG(&tc1,2,1,2);
-			CThreadConnect tc2;
-			m_tm.BeginTaskG(&tc2,2,1,2);
-			CThreadConnect tc3;
-			m_tm.BeginTaskG(&tc3,3,2,2);
-			m_tm.Wait(3);
-		}
-		else
-		*/
+
 		m_tm.Wait(1);
-		m_db.Close();
-		/*
-		int nCount=0;
-		for(unsigned i=0;i<ar.size();++i)
-		{
-			nCount+=ar[i].m_nCount;
 
-		}
-		*/
+		//info("Indexes...");
+		//m_db.m_db.Execute("CREATE UNIQUE INDEX idx_Node ON Node ( id ASC )");
+
+		m_db.Close();
+
 		info("  Bloks=%d\n",INTERLOCKED_GET(CThreadLoader::m_nCount));
 
 	}
