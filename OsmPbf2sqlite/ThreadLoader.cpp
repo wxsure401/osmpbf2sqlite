@@ -6,7 +6,7 @@
 ATOMIC_INT CThreadLoader::m_nCount;
 
 CThreadLoader::CThreadLoader(void)
-:m_pcs(NULL)
+:m_pcsFile(NULL)
 ,m_fp(NULL)
 ,m_pDB(NULL)
 ,m_pprimblock(NULL)
@@ -22,7 +22,7 @@ CThreadLoader::~CThreadLoader(void)
 }
 void CThreadLoader::Init(int nThredNumber,FILE *fp,CDB* pDB)
 {
-    m_pcs=&pDB->m_cs;
+   // m_pcs=&pDB->m_cs;
     m_fp=fp;
     m_pDB=pDB;
     m_nThredNumber=nThredNumber;
@@ -89,7 +89,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 
 		 {
 			 //Начало паралельной работы
-			boost::lock_guard<boost::mutex> l(*m_pcs);
+			boost::lock_guard<boost::mutex> l(*m_pcsFile);
 			if(feof(m_fp))
 				break;
 
@@ -234,34 +234,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 if(!headerblock.ParseFromArray(pbWork, sz))
 				 err("unable to parse header block");
 
-			 // tell about the bbox
-		 /*
-		 if(headerblock.m_bbox.IsInitialized()) {
-				 OSMPBF::HeaderBBox bbox = headerblock.m_bbox;
 
-				 debug("    bbox: %.7f,%.7f,%.7f,%.7f",
-					 (double)bbox.m_left.m_val / OSMPBF::lonlat_resolution,
-					 (double)bbox.m_bottom.m_val / OSMPBF::lonlat_resolution,
-					 (double)bbox.m_right.m_val / OSMPBF::lonlat_resolution,
-					 (double)bbox.m_top.m_val / OSMPBF::lonlat_resolution);
-			 }
-
-			 // tell about the required features
-			 for(int i = 0, l = headerblock.m_required_features.size(); i < l; i++)
-				 debug("    required_feature: %s", headerblock.m_required_features[i].toString().c_str());
-
-			 // tell about the optional features
-			 for(int i = 0, l = headerblock.m_optional_features.size(); i < l; i++)
-				 debug("    required_feature: %s", headerblock.m_optional_features[i].toString().c_str());
-
-			 // tell about the writing program
-			 if(!headerblock.m_writingprogram.empty())
-				 debug("    writingprogram: %s", headerblock.m_writingprogram.toString().c_str());
-
-			 // tell about the source
-			 if(!headerblock.m_source.empty())
-				 debug("    source: %s", headerblock.m_source.toString().c_str());
-		 */
 		 }
 		 else if(blobheader.m_type.compareString("OSMData")==0)
 		 {
@@ -273,21 +246,7 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 			 // parse the PrimitiveBlock from the blob
 			 if(!m_pprimblock->ParseFromArray(pbWork, sz))
 				 err("unable to parse primitive block");
-/*
 
-			 // tell about the block's meta info
-			 debug("    granularity: %u", primblock.m_granularity.m_val);
-			 debug("    lat_offset: %u", primblock.m_lat_offset.m_val);
-			 debug("    lon_offset: %u", primblock.m_lon_offset.m_val);
-			 debug("    date_granularity: %u", primblock.m_date_granularity.m_val);
-
-
-			 // tell about the stringtable
-			 debug("    stringtable: %u items", primblock.m_stringtable.m_s.size());
-			 debug("    stringtable:last %s", primblock.m_stringtable.m_s.back().toString().c_str());
-			 // number of PrimitiveGroups
-			 debug("    primitivegroups: %u groups", primblock.m_primitivegroup.size());
-*/
 			 // iterate over all PrimitiveGroups
 			 for(int i = 0, l = m_pprimblock->m_primitivegroup.size(); i < l; i++)
 			 {
@@ -299,27 +258,18 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 				 // tell about nodes
 				 if(pg.m_nodes.size() > 0)
 				 {
-					//CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
 					 found_items = true;
-					 for(size_t i=0;i<pg.m_nodes.size();++i)
-						AddNode(pg.m_nodes[i]);
+			//		 for(size_t i=0;i<pg.m_nodes.size();++i)
+			//			AddNode(pg.m_nodes[i]);
 
-					 /*
-					 debug("      nodes: %d", pg.m_nodes.size());
-					 if(!pg.m_nodes[0].m_info.empty())
-						 debug("        with meta-info");
-						 */
+
 				 }
 
 				 // tell about dense nodes
 				 if(!pg.m_dense.empty()) {
 					 found_items = true;
 					 AddDense(pg.m_dense);
-/*
-					 debug("      dense nodes: %d", pg.m_dense.m_id.size());
-					 if(!pg.m_dense.m_denseinfo.empty())
-						 debug("        with meta-info");
-						 */
+
 				 }
 
 				 // tell about ways
@@ -338,17 +288,11 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 
 				 // tell about relations
 				 if(pg.m_relations.size() > 0) {
-				 //CComCritSecLock<CComAutoCriticalSection> l(m_pDB->m_cs);
 					found_items = true;
 
 					for(size_t i=0;i<pg.m_relations.size();++i)
 						AddRelations(pg.m_relations[i]);
 
-					 /*
-					 debug("      relations: %d", pg.m_relations.size());
-					 if(pg.m_relations[0].IsInitialized())
-						 debug("        with meta-info");
-						 */
 				 }
 
 				 if(!found_items)
@@ -367,12 +311,10 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 		 if(m_nThredNumber==0)
 		 {
 			 boost::timer::cpu_times const elapsed_times(uTimer.elapsed());
-		     boost::timer::nanosecond_type elapsed(elapsed_times.system
-				 + elapsed_times.user);
+		     boost::timer::nanosecond_type elapsed(elapsed_times.wall);
 			 if(elapsed >= secunda)
 			 {
 				 info("Bloks=%d",l);
-				 //uTimer.stop();
 				 uTimer.start();
 			 }
 		 }
@@ -424,7 +366,9 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 	m_pDB->m_tkvNode.Prepare(m_pprimblock->m_stringtable,
 		n.m_keys,n.m_vals,&arInts);
 
+
 	const PBFRO::FBytes &s=m_pprimblock->m_stringtable.m_s[n.m_info.m_user_sid.m_val];
+
 	int nUser=m_pDB->m_dicUser.GetID(n.m_info.m_uid.m_val, s.m_pBegin,s.size());
 
 //	boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
@@ -509,14 +453,7 @@ void CThreadLoader::AddDense(const OSMPBF::DenseNodes& d)
 
 
 		AddNode(node);
-/*
-		if(i==100)
-		{
-			st.Stop("10add=");
-			int a=0;
-			a++;
-		}
-*/
+
 	}
 }
 void CThreadLoader::AddWay(const OSMPBF::Way& w)
