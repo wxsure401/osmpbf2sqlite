@@ -1,0 +1,12 @@
+syntax: glob
+*.ncb
+Debug/
+Release/
+*.suo
+*.user
+*.orig
+*.aps
+*.db3
+*-journal
+OsmPbf2sqlite/sqlite3.lib
+OsmPbf2sqlite/*.dll
