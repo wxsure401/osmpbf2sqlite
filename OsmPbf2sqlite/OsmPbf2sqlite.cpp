@@ -79,8 +79,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		m_tm.Wait(1);
 
-		//info("Indexes...");
-		//m_db.m_db.Execute("CREATE UNIQUE INDEX idx_Node ON Node ( id ASC )");
+		
 
 		m_db.Close();
 

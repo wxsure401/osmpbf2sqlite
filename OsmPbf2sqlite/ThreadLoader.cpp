@@ -275,8 +275,8 @@ void CThreadLoader::Start(CThreadUnit** pTasks, int countTasks)
 				 // tell about ways
 				 if(pg.m_ways.size() > 0) {
 					 found_items = true;
-//					 for(size_t i=0;i<pg.m_ways.size();++i)
-//						AddWay(pg.m_ways[i]);
+					 for(size_t i=0;i<pg.m_ways.size();++i)
+						AddWay(pg.m_ways[i]);
 
 				 }
 
@@ -379,7 +379,7 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
     	pTabN->Update();
 
 	}
-	return;
+
 
 	{
 	    STabNodeInfo_Cash &t=pTabNI->Prepare();
@@ -391,7 +391,8 @@ void CThreadLoader::AddNode(const OSMPBF::Node& n)
 
 
 	}
-//return;
+	//return;
+	//return;
     //info("2=%X %d\n",&m_pDB->m_cs,m_nThredNumber);
 	//boost::lock_guard<boost::mutex> l(m_pDB->m_cs);
 

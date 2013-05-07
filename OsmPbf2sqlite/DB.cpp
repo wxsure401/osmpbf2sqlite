@@ -36,6 +36,16 @@ void CDB::Init()
 }
 void CDB::Close()
 {
+	info("Index Node 1/5...");
+	m_db.Execute("CREATE UNIQUE INDEX idx_Node ON Node ( id ASC )");
+	info("Index NodeInfo 2/5...");
+	m_db.Execute("CREATE UNIQUE INDEX idx_NodeInfo ON NodeInfo ( idNode ASC )");
+	info("Index WayInfo 3/5...");
+	m_db.Execute("CREATE UNIQUE INDEX idx_WayInfo ON WayInfo ( idWay ASC )");
+	info("Index RelationInfo 4/5...");
+	m_db.Execute("CREATE UNIQUE INDEX idx_RelationInfo ON RelationInfo ( idRelation ASC )");
+	info("Index RelationRole 5/5...");
+	m_db.Execute("CREATE UNIQUE INDEX idx_RelationRole ON RelationRole ( id ASC )");
 
 	 m_dicUser.Save();
 	 m_tkvNode.SaveText();
@@ -94,8 +104,8 @@ void  CDB::CreateTables()
 		err(m_db.errmsg());
 */
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS Node ( "
-	"id   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
-    //"id   INTEGER NOT NULL,"
+	//"id   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+    "id   INTEGER NOT NULL,"
     "lat  INTEGER NOT NULL,"
     "lon  INTEGER NOT NULL "
 	");");
@@ -112,7 +122,8 @@ void  CDB::CreateTables()
 
 
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS NodeInfo ( "
-    "idNode   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+//    "idNode   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+	"idNode   INTEGER NOT NULL,"
     "timestamp  INTEGER,"
     "idUser  INTEGER,"
     "changeset  INTEGER "
@@ -160,7 +171,8 @@ void  CDB::CreateTables()
 		err(m_db.errmsg());
 
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS WayInfo ( "
-		"idWay   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+//		"idWay   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+		"idWay   INTEGER NOT NULL ,"
 		"timestamp  INTEGER,"
 		"idUser  INTEGER,"
 		"changeset  INTEGER "
@@ -190,7 +202,8 @@ void  CDB::CreateTables()
 		err(m_db.errmsg());
 
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS RelationInfo ( "
-		"idRelation   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+//		"idRelation   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+		"idRelation   INTEGER NOT NULL ,"
 		"timestamp  INTEGER,"
 		"idUser  INTEGER,"
 		"changeset  INTEGER "
@@ -220,7 +233,8 @@ void  CDB::CreateTables()
 		err(m_db.errmsg());
 
 	ret=m_db.Execute("CREATE TABLE IF NOT EXISTS RelationRole ( "
-		"id   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+		//"id   INTEGER PRIMARY KEY NOT NULL UNIQUE,"
+		"id   INTEGER NOT NULL,"
 		"Name  TEXT  NOT NULL"
 		");");
 
