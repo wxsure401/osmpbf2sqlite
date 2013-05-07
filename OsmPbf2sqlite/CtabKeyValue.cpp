@@ -87,10 +87,15 @@ void CtabKeyValue::Add(__int64 id,const PBFRO::FBytes* sKey, const PBFRO::FBytes
 unsigned  CtabKeyValue::SDic::GetIdText(const PBFRO::FBytes* sKey)
 {
 	std::string s=sKey->toString();
-
-	CMap::iterator it=m_ar.find(s);
-	if( it!=m_ar.end())
-		return it->second;
+	{
+		boost::shared_lock< boost::shared_mutex  > l(m_cs);
+		CMap::iterator it=m_ar.find(s);
+		if( it!=m_ar.end())
+		{
+			return it->second;
+		}
+	}
+    boost::lock_guard<boost::shared_mutex> l(m_cs);
 	int n=m_ar.size()+1;
 	m_ar[s]= n;
 	return n;
@@ -118,7 +123,7 @@ void CtabKeyValue::Prepare(const OSMPBF::StringTable& arS,const OSMPBF::CarTaxts
 {
 
 	pAr->resize(arKeys.size());
-  	 boost::lock_guard<boost::mutex> l(m_cs);
+  	
 	 for(unsigned i=0;i< arKeys.size(); ++i)
 	 {
 		 Sint &si=(*pAr)[i];

@@ -44,7 +44,6 @@ public:
 		int nv;
 	};
 	typedef std::vector<Sint> SarInts;
-	boost::mutex m_cs;
 	void Prepare(const OSMPBF::StringTable& arS,const OSMPBF::CarTaxts &arKeys,const OSMPBF::CarTaxts& arValues,SarInts *par);
 	void SaveId(__int64 id,const SarInts &ar,CKV_cash * pCash);
 
@@ -58,6 +57,7 @@ public:
 		typedef std::map< std::string ,unsigned > CMap;
 		CMap m_ar;
 		CSQLite3Table m_tab;
+		boost::shared_mutex m_cs;
 
 		unsigned GetIdText(const PBFRO::FBytes* sKey);
 		void Save();
