@@ -8,7 +8,7 @@ class TTable_cash
 {
 public:
         TTable_cash()
-            :m_ar(8112)
+            :m_ar(32000)
             ,m_nAdd(0)
             ,m_ptab(NULL)
             ,m_pcs(NULL)
