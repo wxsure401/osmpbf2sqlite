@@ -70,6 +70,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			for(unsigned i=0;i<ar.size();++i)
 			{
+			    ar[i].m_pcsFile=&m_csFile;
 				ar[i].Init(i,fp,&m_db);
 				m_tm.BeginTaskG(&ar[i],1,0,0);
 			}
