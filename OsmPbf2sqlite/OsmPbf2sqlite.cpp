@@ -24,7 +24,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//setlocale( LC_ALL, "English" );
 
 
-	const _TCHAR* fn= argc==2  ? argv[1] : NULL;
+	const _TCHAR* fn= argc>=2  ? argv[1] : NULL;
 #ifdef WIN32
 
 #else
@@ -33,15 +33,19 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
 
 	//CStopwatch sw;
-	if(argc!=2 || fn[0]==L'-'
+	if(argc<2 || fn[0]==L'-'
 #ifdef WIN32
         || fn[0]==L'/'
 #endif
     )
 	{
-		info("Convert osm-pbf file to sqlite database. \t\tby deep125 03.2013 v1.1\nuse:\nosmpbf2sqlite.exe pbffile");
+		info("Convert osm-pbf file to sqlite database. \t\tby deep125 03.2013 v1.1\nuse:\nosmpbf2sqlite.exe pbffile [threadCount]");
 		return 0;
 
+	}
+	int threads=2;
+	if (argc==3) {
+		threads = atoi((char*) argv[2]);
 	}
 
 	// open specified file
@@ -51,6 +55,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		err("_wfopen failed!\n");
 		return -1;
 	}
+	
 
 	boost::timer::auto_cpu_timer sw;
 	//sw.Start();
@@ -64,7 +69,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	{
 		boost::mutex m_csFile;
-		CThreadManager m_tm;
+		CThreadManager m_tm(threads);
+		info("%d threads:",m_tm.GetCountThread());
 		std::vector<CThreadLoader> ar(m_tm.GetCountThread());
 
 
